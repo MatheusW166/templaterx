@@ -3,7 +3,6 @@ import re
 
 orig_file = "template.odt"
 generated_file = "_generated_doc.odt"
-temp_content = "content_temp.xml"
 
 
 def fill_table(name: str, content_xml: str, data=[]):
