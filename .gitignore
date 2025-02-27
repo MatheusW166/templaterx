@@ -1,3 +1,5 @@
 *env*
-_*
+_generated*
+*temp*
+*pycache*
 !.env.example

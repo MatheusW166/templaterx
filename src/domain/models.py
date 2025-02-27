@@ -1,4 +1,4 @@
-import database as _database
+import src.infra.database as _database
 import sqlalchemy as _sql
 
 
