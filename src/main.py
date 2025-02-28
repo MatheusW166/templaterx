@@ -1,7 +1,9 @@
-import src.domain.models as _models
+import domain.gd_consulta_model as _models
 import src.infra.database as _database
 import src.app.services.odt as _odt
 from sqlalchemy import text
+
+
 
 db = _database.SessionLocal()
 

@@ -1,0 +1,16 @@
+from src.domain.gd_consulta_model import GDConsultaModel
+from src.app.repositories.gd_consulta_repository_interface import GdConsultaRepositoryInterface
+from src.adapters.spi.db_connection import DbConnection
+from src.adapters.spi.gd_consulta_db_model import GdConsultaDbModel
+from src.adapters.spi.mappers import GdConsultaDbModelMapper
+
+
+class GdConsultaRepository(GdConsultaRepositoryInterface):
+    def __init__(self, db_connection: DbConnection):
+        self.db_connection = db_connection
+        self.mapper = GdConsultaDbModelMapper()
+
+    def get_all(self) -> list[GDConsultaModel]:
+        session = self.db_connection.get_connection()
+        results = session.query(GdConsultaDbModel).all()
+        return [self.mapper.to_model(result) for result in results]

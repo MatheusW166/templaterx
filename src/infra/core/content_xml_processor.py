@@ -1,14 +1,15 @@
 import re
 import copy
 from lxml import etree as ET
+from src.app.core.xml_processor_interface import XMLProcessorInterface
 
 
-class ContentXMLProcessor():
+class ContentXMLProcessor(XMLProcessorInterface):
     def __init__(self, element: bytes):
         self.namespaces = {
-            'table': 'urn:oasis:names:tc:opendocument:xmlns:table:1.0',
-            'office': 'urn:oasis:names:tc:opendocument:xmlns:office:1.0',
-            'text': 'urn:oasis:names:tc:opendocument:xmlns:text:1.0'
+            "table": "urn:oasis:names:tc:opendocument:xmlns:table:1.0",
+            "office": "urn:oasis:names:tc:opendocument:xmlns:office:1.0",
+            "text": "urn:oasis:names:tc:opendocument:xmlns:text:1.0"
         }
         self.element: ET._Element = ET.fromstring(element)
 
@@ -36,7 +37,7 @@ class ContentXMLProcessor():
 
         return loop_delimiters
 
-    def _get_loop_delimiters(self, table: ET._Element) -> ET._Element:
+    def _get_row_template(self, table: ET._Element) -> ET._Element:
         xpath_row_template = r".//table:table-row[.//*[contains(text(),'d.')]]"
         row_template = table.xpath(
             xpath_row_template,
@@ -48,7 +49,7 @@ class ContentXMLProcessor():
 
         return row_template[0]
 
-    def _get_loop_delimiters_attributes(self, row_template: ET._Element) -> list[ET._Element]:
+    def _get_row_template_attributes(self, row_template: ET._Element) -> list[ET._Element]:
         xpath_column = r".//*[contains(text(),'d.')]"
         row_template_attributes = row_template.xpath(
             xpath_column,
@@ -74,13 +75,13 @@ class ContentXMLProcessor():
         for d in data:
             row_cp: ET._Element = copy.deepcopy(row_template)
 
-            for el in self._get_loop_delimiters_attributes(row_cp):
+            for el in self._get_row_template_attributes(row_cp):
                 key = self._get_attribute_from_text(el.text)
                 value = d.get(key, Exception())
 
                 if isinstance(value, Exception):
                     raise RuntimeError(
-                        f"No column found for attribute '{key}'")
+                        f"No sql column found for attribute 'd.{key}'")
 
                 el.text = str(value)
 
@@ -102,7 +103,7 @@ class ContentXMLProcessor():
         tables = self._get_tables_by_name(name)
 
         for table in tables:
-            row_template = self._get_loop_delimiters(table)
+            row_template = self._get_row_template(table)
 
             self._append_data_rows(row_template, data)
 
