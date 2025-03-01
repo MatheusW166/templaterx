@@ -10,4 +10,4 @@ class GDConsultaModel(BaseModel):
     query: str
     is_active: bool
     created_at: datetime
-    updated_at: datetime
+    is_updated: str

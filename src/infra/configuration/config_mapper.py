@@ -5,7 +5,7 @@ from dotenv import dotenv_values
 
 class ConfigurationMapper:
     @classmethod
-    def get_config(cls, env) -> ConfigurationModel:
+    def get_config(cls, env: str) -> ConfigurationModel:
         env = env.lower()
 
         __config_raw: Dict[str, Optional[str]] = dotenv_values(
@@ -16,7 +16,7 @@ class ConfigurationMapper:
         pool_size = __config_raw.get("POOL_SIZE")
 
         if main_datasource_url is None or pool_size is None:
-            raise RuntimeError(f"Missing {env} configuration")
+            raise RuntimeError(f"Missing '{env}' configuration")
 
         return ConfigurationModel(
             main_datasource_url=main_datasource_url,

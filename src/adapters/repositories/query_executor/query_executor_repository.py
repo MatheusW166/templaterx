@@ -1,4 +1,4 @@
-from app.repositories.query_executor.query_executor_repository_interface import QueryExecutorRepositoryInterface
+from src.app.repositories.query_executor.query_executor_repository_interface import QueryExecutorRepositoryInterface
 from src.adapters.spi.query_executor.db_dynamic_connection import DbDynamicConnection
 from typing import Any
 
@@ -11,5 +11,5 @@ class QueryExecutorRepository(QueryExecutorRepositoryInterface):
         results = self.db_connection.execute(
             query,
             conn_string
-        )
+        ).all()
         return results

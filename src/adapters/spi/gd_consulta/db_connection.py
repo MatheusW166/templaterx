@@ -14,6 +14,7 @@ class DbConnection(DbConnectionInterface):
         self.engine = _sql.create_engine(
             config.main_datasource_url,
             pool_size=config.pool_size,
+            max_overflow=0
         )
         self.SessionLocal = _orm.sessionmaker(
             autocommit=False,
@@ -25,4 +26,4 @@ class DbConnection(DbConnectionInterface):
         from src.infra.shared.logs import Logger
 
         Logger.get_logger().info(f"Connected to database: {self.engine.url}")
-        return self.SessionLocal()
+        return self.SessionLocal

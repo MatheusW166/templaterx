@@ -7,15 +7,16 @@ from src.app.spi.db_dynamic_interface import DbDynamicConnectionInterface
 
 
 class DbDynamicConnection(DbDynamicConnectionInterface):
-    def __init__(self):
-        self.engines = []
+    def __init__(self, pool_size: int):
+        self.engines: list[_sql.Engine] = []
+        self.pool_size = pool_size
 
     def _get_host(self, conn_string: str):
         return conn_string.split("@")[-1]
 
     def _get_engine_by_url(self, conn_string: str):
         for engine in self.engines:
-            if self._get_host(engine.url) == self._get_host(conn_string.strip()):
+            if engine.url.host in self._get_host(conn_string.strip()):
                 return engine
         return None
 
@@ -25,22 +26,21 @@ class DbDynamicConnection(DbDynamicConnectionInterface):
         if engine is None:
             engine = _sql.create_engine(
                 conn_string,
-                pool_size=10,
+                pool_size=self.pool_size,
+                max_overflow=0
             )
             self.engines.append(engine)
 
             from src.infra.shared.logs import Logger
-            Logger.get_logger().info(f"Created new connection to database: {engine.url}")
+            Logger.get_logger().info(f"Connected to database: {engine.url}")
 
         return engine
 
     def execute(self, query: str, conn_string: str):
-        
-
         engine = self._add_engine(conn_string)
-        session = _orm.sessionmaker(
+        with _orm.sessionmaker(
             autocommit=False,
             autoflush=False,
             bind=engine
-        )()
-        return session.execute(text(query))
+        )() as conn:
+            return conn.execute(text(query))

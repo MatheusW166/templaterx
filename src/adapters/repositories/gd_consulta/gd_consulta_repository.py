@@ -14,3 +14,10 @@ class GdConsultaRepository(GdConsultaRepositoryInterface):
         session = self.db_connection.get_connection()
         results = session.query(GdConsultaDbModel).all()
         return [self.mapper.to_model(result) for result in results]
+
+    def get_all_in_names(self, names: list[str]) -> list[GDConsultaModel]:
+        Session = self.db_connection.get_connection()
+
+        with Session() as conn:
+            results = conn.query(GdConsultaDbModel).filter(GdConsultaDbModel.nm_consulta.in_(names)).all()
+            return [self.mapper.to_model(result) for result in results]

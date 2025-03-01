@@ -112,4 +112,4 @@ class ContentXMLProcessor(XMLProcessorInterface):
             self._remove_all(row_template, *loop_delimiters)
 
     def tostring(self) -> str:
-        return ET.tostring(self.element)
+        return ET.tostring(self.element, encoding="unicode")

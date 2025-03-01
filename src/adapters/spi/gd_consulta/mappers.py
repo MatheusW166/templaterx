@@ -14,5 +14,5 @@ class GdConsultaDbModelMapper(DbMapperInterface):
             query=dbModel.ds_sql,
             is_active=dbModel.in_ativo,
             created_at=dbModel.dt_criacao,
-            updated_at=dbModel.fl_atualizado,
+            is_updated=dbModel.fl_atualizado,
         )
