@@ -22,7 +22,7 @@ class DbConnection(DbConnectionInterface):
             bind=self.engine
         )
 
-    def get_connection(self):
+    def get_session(self):
         from src.infra.shared.logs import Logger
 
         Logger.get_logger().info(f"Connected to database: {self.engine.url}")
