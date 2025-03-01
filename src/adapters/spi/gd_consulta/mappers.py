@@ -1,6 +1,6 @@
 from src.domain.gd_consulta_model import GDConsultaModel
 from src.app.mappers.db_mapper_interface import DbMapperInterface
-from src.adapters.spi.gd_consulta_db_model import GdConsultaDbModel
+from src.adapters.spi.gd_consulta.gd_consulta_db_model import GdConsultaDbModel
 
 
 class GdConsultaDbModelMapper(DbMapperInterface):

@@ -2,7 +2,7 @@ import sqlalchemy as _sql
 import sqlalchemy.ext.declarative as _declarative
 
 
-class GdConsultaDbModel(_declarative.get_base_model()):
+class GdConsultaDbModel(_declarative.declarative_base()):
     __tablename__ = "TB_GD_CONSULTA"
 
     id_consulta = _sql.Column(_sql.Integer, primary_key=True, index=True)
@@ -15,5 +15,3 @@ class GdConsultaDbModel(_declarative.get_base_model()):
     dt_criacao = _sql.Column(_sql.DateTime)
     ds_sql_criacao_tabela = _sql.Column(_sql.String)
     fl_atualizado = _sql.Column(_sql.String)
-
-    

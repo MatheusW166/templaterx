@@ -1,0 +1,46 @@
+import sqlalchemy as _sql
+import sqlalchemy.orm as _orm
+from sqlalchemy import text
+from src.app.spi.db_dynamic_interface import DbDynamicConnectionInterface
+
+# Must be a singleton
+
+
+class DbDynamicConnection(DbDynamicConnectionInterface):
+    def __init__(self):
+        self.engines = []
+
+    def _get_host(self, conn_string: str):
+        return conn_string.split("@")[-1]
+
+    def _get_engine_by_url(self, conn_string: str):
+        for engine in self.engines:
+            if self._get_host(engine.url) == self._get_host(conn_string.strip()):
+                return engine
+        return None
+
+    def _add_engine(self, conn_string: str):
+        engine = self._get_engine_by_url(conn_string)
+
+        if engine is None:
+            engine = _sql.create_engine(
+                conn_string,
+                pool_size=10,
+            )
+            self.engines.append(engine)
+
+            from src.infra.shared.logs import Logger
+            Logger.get_logger().info(f"Created new connection to database: {engine.url}")
+
+        return engine
+
+    def execute(self, query: str, conn_string: str):
+        
+
+        engine = self._add_engine(conn_string)
+        session = _orm.sessionmaker(
+            autocommit=False,
+            autoflush=False,
+            bind=engine
+        )()
+        return session.execute(text(query))

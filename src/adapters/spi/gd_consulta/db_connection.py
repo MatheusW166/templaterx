@@ -4,6 +4,9 @@ from src.app.spi.db_interface import DbConnectionInterface
 from src.domain.configuration_model import ConfigurationModel
 
 
+# Must be a singleton
+
+
 class DbConnection(DbConnectionInterface):
     def __init__(self, config: ConfigurationModel):
         self.conn_string = config.main_datasource_url
@@ -19,4 +22,7 @@ class DbConnection(DbConnectionInterface):
         )
 
     def get_connection(self):
+        from src.infra.shared.logs import Logger
+
+        Logger.get_logger().info(f"Connected to database: {self.engine.url}")
         return self.SessionLocal()

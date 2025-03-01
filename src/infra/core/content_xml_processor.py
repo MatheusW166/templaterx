@@ -3,14 +3,15 @@ import copy
 from lxml import etree as ET
 from src.app.core.xml_processor_interface import XMLProcessorInterface
 
+DEFAULT_NAMESPACES = {
+    "table": "urn:oasis:names:tc:opendocument:xmlns:table:1.0",
+    "office": "urn:oasis:names:tc:opendocument:xmlns:office:1.0",
+    "text": "urn:oasis:names:tc:opendocument:xmlns:text:1.0"
+}
 
 class ContentXMLProcessor(XMLProcessorInterface):
     def __init__(self, element: bytes):
-        self.namespaces = {
-            "table": "urn:oasis:names:tc:opendocument:xmlns:table:1.0",
-            "office": "urn:oasis:names:tc:opendocument:xmlns:office:1.0",
-            "text": "urn:oasis:names:tc:opendocument:xmlns:text:1.0"
-        }
+        self.namespaces = DEFAULT_NAMESPACES
         self.element: ET._Element = ET.fromstring(element)
 
     def _get_tables_by_name(self, name: str) -> list[ET._Element]:

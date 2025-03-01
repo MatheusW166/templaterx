@@ -1,8 +1,8 @@
 from src.domain.gd_consulta_model import GDConsultaModel
-from src.app.repositories.gd_consulta_repository_interface import GdConsultaRepositoryInterface
-from src.adapters.spi.db_connection import DbConnection
-from src.adapters.spi.gd_consulta_db_model import GdConsultaDbModel
-from src.adapters.spi.mappers import GdConsultaDbModelMapper
+from src.app.repositories.gd_consulta.gd_consulta_repository_interface import GdConsultaRepositoryInterface
+from src.adapters.spi.gd_consulta.db_connection import DbConnection
+from src.adapters.spi.gd_consulta.gd_consulta_db_model import GdConsultaDbModel
+from src.adapters.spi.gd_consulta.mappers import GdConsultaDbModelMapper
 
 
 class GdConsultaRepository(GdConsultaRepositoryInterface):

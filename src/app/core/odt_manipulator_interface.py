@@ -1,10 +1,9 @@
 from abc import ABC, abstractmethod
-from src.app.core.xml_processor_interface import XMLProcessorInterface
 
 
 class OdtManipulatorInterface(ABC):
     @abstractmethod
-    def load_contentxml(self, orig_file: str) -> XMLProcessorInterface:
+    def load_contentxml(self, orig_file: str) -> bytes:
         pass
 
     @abstractmethod

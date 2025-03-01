@@ -20,6 +20,6 @@ class ConfigurationMapper:
 
         return ConfigurationModel(
             main_datasource_url=main_datasource_url,
-            pool_size=pool_size,
+            pool_size=int(pool_size),
             env=env
         )
