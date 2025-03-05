@@ -5,5 +5,8 @@ from abc import ABC, abstractmethod
 
 class MessageHandlerInterface(ABC):
     @abstractmethod
-    def listenToQueue(self):
+    def consume(self):
+        pass
+
+    def publish(self):
         pass

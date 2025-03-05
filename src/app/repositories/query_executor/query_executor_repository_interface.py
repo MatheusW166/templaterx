@@ -1,8 +1,8 @@
+from src.domain.generic_query_result_model import GenericQueryResultModel
 from abc import ABC, abstractmethod
-from typing import Any
 
 
 class QueryExecutorRepositoryInterface(ABC):
     @abstractmethod
-    def execute(self, query: str, conn_string: str) -> list[Any]:
+    def execute(self, name: str, query: str, conn_string: str) -> GenericQueryResultModel:
         raise NotImplementedError()

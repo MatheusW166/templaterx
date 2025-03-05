@@ -5,11 +5,11 @@ Model = TypeVar("Model")
 DbModel = TypeVar("DbModel")
 
 
-class DbMapperInterface(ABC, Generic[Model, DbModel]):
+class DbDynamicMapperInterface(ABC, Generic[Model, DbModel]):
     @abstractmethod
     def to_db(self, model: Model) -> DbModel:
         raise NotImplementedError()
 
     @abstractmethod
-    def to_model(self, dbModel: DbModel) -> Model:
+    def to_model(self, *args, **kwargs) -> Model:
         raise NotImplementedError()

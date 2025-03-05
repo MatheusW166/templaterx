@@ -12,6 +12,7 @@ from src.infra.core.content_xml_processor import ContentXMLProcessor
 from src.infra.shared.logs import Logger
 
 from src.domain.configuration_model import ConfigurationModel
+from src.domain.gd_consulta_model import GDConsultaModel
 
 env = os.getenv("ENV", "dev")
 config: ConfigurationModel = ConfigurationMapper.get_config(env)
@@ -31,25 +32,31 @@ dynamic_db_connection = DbDynamicConnection(config.pool_size)
 query_executor_repository = QueryExecutorRepository(dynamic_db_connection)
 
 
-async def main():
+async def exec_query_async(query: GDConsultaModel):
     loop = asyncio.get_running_loop()
+    try:
+        result = await loop.run_in_executor(
+            None,
+            query_executor_repository.execute,
+            query.name,
+            query.query,
+            config.main_datasource_url
+        )
 
-    async def one_fetch(c):
-        try:
-            await loop.run_in_executor(
-                None,
-                query_executor_repository.execute,
-                c.query,
-                config.main_datasource_url
-            )
-            Logger.get_logger().info(
-                f"✅ Successfully executed query: {c.name}"
-            )
-        except Exception as e:
-            Logger.get_logger().error(
-                f"Error executing query {c.name}: {e.__cause__}")
+        Logger.get_logger().info(f"✅ Executed query: {query.name}")
+        return result
+    except Exception as e:
+        Logger.get_logger().error(f"Error on {query.name}: {e.__cause__}")
+        pass
 
-    coros = [one_fetch(c) for c in consultas]
-    await asyncio.gather(*coros)
+
+async def main():
+
+    coros = [exec_query_async(c) for c in consultas]
+    for future in asyncio.as_completed(coros):
+        result = await future
+        print("Ok!")
+        print(result)
+
 
 asyncio.run(main())
