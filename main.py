@@ -44,10 +44,10 @@ async def exec_query_async(query: GDConsultaModel):
             query.query,
             config.main_datasource_url
         )
+        log.info(f"✅ Executed query: {query.name}")
 
         async with asyncio.Lock():
             processor.build_tables_with_name(result.name, result.result)
-            log.info(f"✅ Executed query: {query.name}")
 
     except RuntimeError as e:
         log.error(f"Error on {query.name}: {e}")

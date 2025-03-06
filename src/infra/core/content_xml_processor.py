@@ -2,6 +2,7 @@ import re
 import copy
 from lxml import etree as ET
 from src.app.core.xml_processor_interface import XMLProcessorInterface
+from src.infra.shared.logs import Logger
 
 
 DEFAULT_NAMESPACES = {
@@ -9,6 +10,8 @@ DEFAULT_NAMESPACES = {
     "office": "urn:oasis:names:tc:opendocument:xmlns:office:1.0",
     "text": "urn:oasis:names:tc:opendocument:xmlns:text:1.0"
 }
+
+logs = Logger.get_logger()
 
 
 class ContentXMLProcessor(XMLProcessorInterface):
@@ -86,8 +89,9 @@ class ContentXMLProcessor(XMLProcessorInterface):
                 value = d.get(key, Exception())
 
                 if isinstance(value, Exception):
-                    raise RuntimeError(
+                    logs.warning(
                         f"No sql column found for attribute 'd.{key}'")
+                    continue
 
                 el.text = str(value)
 
@@ -103,7 +107,10 @@ class ContentXMLProcessor(XMLProcessorInterface):
 
     def build_tables_with_name(self, name: str,   data: list[dict] = []):
         if len(data) == 0:
+            logs.warning(f"{name}: no data to build")
             return
+
+        logs.info(f"{name}: building tables")
 
         # Get all tables with the same name
         tables = self._get_tables_by_name(name)
@@ -115,6 +122,8 @@ class ContentXMLProcessor(XMLProcessorInterface):
 
             loop_delimiters = self._get_loop_delimiters(table)
             self._remove_all(row_template, *loop_delimiters)
+
+        logs.info(f"{name}: tables built")
 
     def tostring(self) -> str:
         return ET.tostring(self.element, encoding="unicode")
