@@ -23,7 +23,7 @@ class OdtManipulator(OdtManipulatorInterface):
 
     def generate_document(self, content_xml: str):
         # Creates new odt
-        self.create_no_content_copy(self.orig_file, self.generated_file)
+        self.create_no_content_copy()
 
         # Adds modified content.xml
         with zipfile.ZipFile(self.generated_file, "a") as zip_mod:

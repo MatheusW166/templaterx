@@ -1,8 +1,13 @@
 import inspect
 import logging
 import sys
+import os
 from logging.handlers import RotatingFileHandler
 
+LOGS_DIR = "logs/"
+
+if not os.path.isdir(LOGS_DIR):
+    os.mkdir(LOGS_DIR)
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -10,7 +15,7 @@ logging.basicConfig(
     handlers=[
         logging.StreamHandler(sys.stdout),
         RotatingFileHandler(
-            filename="logs/app.log",
+            filename=LOGS_DIR+"app.log",
             mode="a",
             maxBytes=5*1024*1024,
             backupCount=2,

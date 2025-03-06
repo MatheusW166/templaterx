@@ -31,6 +31,8 @@ consultas = gd_consulta_repository.get_all_in_names(tables)
 dynamic_db_connection = DbDynamicConnection(config.pool_size)
 query_executor_repository = QueryExecutorRepository(dynamic_db_connection)
 
+log = Logger.get_logger()
+
 
 async def exec_query_async(query: GDConsultaModel):
     loop = asyncio.get_running_loop()
@@ -43,20 +45,23 @@ async def exec_query_async(query: GDConsultaModel):
             config.main_datasource_url
         )
 
-        Logger.get_logger().info(f"✅ Executed query: {query.name}")
-        return result
+        async with asyncio.Lock():
+            processor.build_tables_with_name(result.name, result.result)
+            log.info(f"✅ Executed query: {query.name}")
+
+    except RuntimeError as e:
+        log.error(f"Error on {query.name}: {e}")
+        pass
     except Exception as e:
-        Logger.get_logger().error(f"Error on {query.name}: {e.__cause__}")
+        log.error(f"Error on {query.name}: {e.__cause__}")
         pass
 
 
 async def main():
 
-    coros = [exec_query_async(c) for c in consultas]
-    for future in asyncio.as_completed(coros):
-        result = await future
-        print("Ok!")
-        print(result)
+    await asyncio.gather(*[exec_query_async(c) for c in consultas])
+
+    odt.generate_document(processor.tostring())
 
 
 asyncio.run(main())

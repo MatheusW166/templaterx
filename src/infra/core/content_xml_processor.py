@@ -3,11 +3,13 @@ import copy
 from lxml import etree as ET
 from src.app.core.xml_processor_interface import XMLProcessorInterface
 
+
 DEFAULT_NAMESPACES = {
     "table": "urn:oasis:names:tc:opendocument:xmlns:table:1.0",
     "office": "urn:oasis:names:tc:opendocument:xmlns:office:1.0",
     "text": "urn:oasis:names:tc:opendocument:xmlns:text:1.0"
 }
+
 
 class ContentXMLProcessor(XMLProcessorInterface):
     def __init__(self, element: bytes):
@@ -15,7 +17,10 @@ class ContentXMLProcessor(XMLProcessorInterface):
         self.element: ET._Element = ET.fromstring(element)
 
     def _get_tables_by_name(self, name: str) -> list[ET._Element]:
-        xpath_table = rf".//table:table[.//*[contains(text(), '%tr for d in {name}')]]"
+        string_search = f"""
+            contains(translate(string(),' ',''), '%trfordin{name.strip()}%') 
+        """
+        xpath_table = rf".//table:table[.//*[{string_search}]]"
         tables: list[ET._Element] = self.element.xpath(
             xpath_table,
             namespaces=self.namespaces

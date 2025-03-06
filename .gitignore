@@ -35,6 +35,7 @@ wheels/
 *temp*
 _generated*
 .DS_Store
+.~lock.*
 
 # Environment variables
 .env*
