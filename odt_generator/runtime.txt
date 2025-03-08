@@ -1,0 +1,14 @@
+python==3.12.3
+
+1)
+mkdir -p /opt/oracle
+cd /opt/oracle
+unzip instantclient-basic-linux.x64.zip
+
+2) sudo apt install libaio1
+
+3) export LD_LIBRARY_PATH=/opt/oracle/instantclient_23_7:$LD_LIBRARY_PATH
+
+4) Caso libaio.so.1 tenha sido instalado om outro nome, crie um link simbólico para ele:
+
+sudo ln -s /usr/lib/x86_64-linux-gnu/libaio.so.1t64 /usr/lib/libaio.so.1
