@@ -1,4 +1,3 @@
-from src.infra.core.odt_manipulator import OdtManipulator
 import re
 import copy
 from lxml import etree as ET
