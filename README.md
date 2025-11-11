@@ -5,8 +5,6 @@ It connects to multiple databases, executes pre-saved SQL queries, and fills `.o
 
 Whether you need to generate reports, certificates, or data-driven forms, **TemplaterX** bridges your data and your documents with flexibility and ease.
 
----
-
 ## 🚀 Features
 
 - 🔗 **Multiple Datasource Support** — Connect to Oracle, PostgreSQL, MySQL, and other databases.  
@@ -14,8 +12,6 @@ Whether you need to generate reports, certificates, or data-driven forms, **Temp
 - 📝 **Dynamic ODT Generation** — Fills OpenDocument Text (.odt) templates with live data.  
 - ⚙️ **Configurable and Extensible** — Easily adapt templates and queries for different use cases.  
 - 🧰 **CLI or Script Integration** — Works standalone or embedded in Python applications.
-
----
 
 ## 🧱 Architecture Overview
 
