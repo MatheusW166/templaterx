@@ -13,7 +13,6 @@ from src.infra.shared.logs import Logger
 
 from src.domain.configuration_model import ConfigurationModel
 from src.domain.gd_consulta_model import GDConsultaModel
-from src.domain.base_error_model import BaseErrorModel
 
 env = os.getenv("ENV", "dev")
 config: ConfigurationModel = ConfigurationMapper.get_config(env)
@@ -50,19 +49,15 @@ async def exec_query_async(query: GDConsultaModel):
         # Locking to ensure that only one thread can modify the xml at a time
         async with asyncio.Lock():
             processor.fill_content(result.name, result.result)
-    except BaseErrorModel as e:
-        log.error(f"Error on {query.name}: {e.message}")
-        pass
     except Exception as e:
         log.error(f"Error on {query.name}: {e}")
         pass
 
 
 async def main():
-
     await asyncio.gather(*[exec_query_async(c) for c in consultas])
-
     odt.generate_document(processor.tostring())
 
 
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())

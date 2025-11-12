@@ -194,9 +194,12 @@ class ContentXMLProcessor(XMLProcessorInterface):
 
     def fill_content(self, name: str, data: list[dict] = []):
         logs.info(f"{name}: Filling content")
+
         if len(data) == 0:
             logs.warning(f"{name}: No data to fill")
             return
 
-        self._fill_tables_with_name(name, data)
-        self._fill_last_row_vars_with_name(name, data[-1])
+        data_reversed = data[::-1]
+
+        self._fill_tables_with_name(name, data_reversed)
+        self._fill_last_row_vars_with_name(name, data_reversed[0])

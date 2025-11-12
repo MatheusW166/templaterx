@@ -12,7 +12,8 @@ class GenericQueryResultMapper(DbDynamicMapperInterface):
         keys = result.keys()
         rows = result.all()
 
-        data: dict[str, Iterable[Any]] = [dict(zip(keys, row)) for row in rows]
+        data: dict[str, Iterable[Any]] = [
+            dict(zip(keys, row)) for row in rows]
 
         return GenericQueryResultModel(
             result=data,
