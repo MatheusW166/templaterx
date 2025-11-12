@@ -43,7 +43,7 @@ async def exec_query_async(query: GDConsultaModel):
             query_executor_repository.execute,
             query.name,
             query.query,
-            config.main_datasource_url
+            config.postgres_url
         )
 
         # Locking to ensure that only one thread can modify the xml at a time

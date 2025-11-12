@@ -13,13 +13,15 @@ class ConfigurationMapper:
         )
 
         main_datasource_url = __config_raw.get("MAIN_DATASOURCE_URL")
+        postgres_url = __config_raw.get("POSTGRES_URL")
         pool_size = __config_raw.get("POOL_SIZE")
 
-        if main_datasource_url is None or pool_size is None:
+        if None in [main_datasource_url, pool_size, postgres_url]:
             raise RuntimeError(f"Missing '{env}' configuration")
 
         return ConfigurationModel(
             main_datasource_url=main_datasource_url,
+            postgres_url=postgres_url,
             pool_size=int(pool_size),
             env=env
         )
