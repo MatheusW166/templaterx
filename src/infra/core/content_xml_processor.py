@@ -1,6 +1,6 @@
 import re
 import copy
-from lxml import etree as ET
+import lxml as ET
 from src.app.core.xml_processor_interface import XMLProcessorInterface
 from src.infra.shared.logs import Logger
 
