@@ -1,3 +1,6 @@
+from typing import Dict, Any, Optional
+from docxtpl import DocxTemplate
+import random
 from jinja2 import Environment, meta
 from typing import cast
 import re
@@ -125,10 +128,74 @@ structures = extract_complete_structures(clob)
 vars_per_structure, cooccurrence_map = index_vars_in_structures(structures)
 vars = collect_connected_vars("LISTA2", cooccurrence_map)
 
-print(vars)
 
-# env = Environment(trim_blocks=True)
+env = Environment(trim_blocks=True, lstrip_blocks=True)
 
-# rendered = env.from_string(clob).render(
-#     {"LISTA": ["A", "B", "C"], "VAR_NAO_DEFINIDA": 1})
-# print(rendered)
+
+context = {
+    "LISTA": ["A", "B", "C"],
+    "VARIAVEL": "Apenas uma variável",
+    "VAR_NAO_DEFINIDA": 2,
+    "LISTA2": [10, 2, 5, 7]
+}
+
+
+class MyDocxTemplate(DocxTemplate):
+    def render(
+        self,
+        context: Dict[str, Any],
+        jinja_env: Optional[Environment] = None,
+        autoescape: bool = False,
+    ) -> None:
+        # init template working attributes
+        self.render_init()
+
+        if autoescape:
+            if not jinja_env:
+                jinja_env = Environment(autoescape=autoescape)
+            else:
+                jinja_env.autoescape = autoescape
+
+        # Body
+        xml_src = self.build_xml(context, jinja_env)
+
+        # fix tables if needed
+        tree = self.fix_tables(xml_src)
+
+        # fix docPr ID's
+        self.fix_docpr_ids(tree)
+
+        # Replace body xml tree
+        self.map_tree(tree)
+
+        # Headers
+        headers = self.build_headers_footers_xml(
+            context, self.HEADER_URI, jinja_env)
+        for relKey, xml in headers:
+            self.map_headers_footers_xml(relKey, xml)
+
+        # Footers
+        footers = self.build_headers_footers_xml(
+            context, self.FOOTER_URI, jinja_env)
+        for relKey, xml in footers:
+            self.map_headers_footers_xml(relKey, xml)
+
+        self.render_properties(context, jinja_env)
+
+        self.render_footnotes(context, jinja_env)
+
+        # set rendered flag
+        self.is_rendered = True
+
+
+tpl = MyDocxTemplate("template.docx")
+tpl.render(context)
+
+exit(0)
+
+parts = []
+for s in structures:
+    parts.append(env.from_string(s).render(context))
+
+with open("generated.xml", "w") as f:
+    f.write("\n".join(parts))
