@@ -1,22 +1,6 @@
-from jinja2 import Undefined, Environment, meta
-import re
+from jinja2 import Environment, meta
 from typing import cast
-from docxtpl import DocxTemplate
-
-# # First render
-# doc = DocxTemplate("template.docx")
-# doc.render({
-#     "LISTA": ["A","B","C"],
-# })
-
-# # Second render
-# doc.render({
-#      "LISTA2": ["A","B","C"],
-# })
-
-# doc.save("_generated.docx")
-
-# exit(0)
+import re
 
 
 def match(pattern: str, text: str, group=0):
@@ -32,7 +16,8 @@ def match(pattern: str, text: str, group=0):
 
 
 def extract_complete_structures(xml: str):
-    tokens: list[str] = re.split(r"(\{\%.*?\%\})", xml, flags=re.DOTALL)
+    control_block_pattern = r"(\{\%.*?\%\})"
+    tokens: list[str] = re.split(control_block_pattern, xml, flags=re.DOTALL)
 
     # Anything like {%...%} without "end"
     open_pattern = r"\{\%\s*(?!.*end).*?\%\}"
@@ -44,96 +29,106 @@ def extract_complete_structures(xml: str):
     # {% for... %} => for, {% if... %} => if
     reserved_word_pattern = r"\{\%\s*(\S+)"
 
-    close_block_stack: list[str] = []
+    close_block_expected_stack: list[str] = []
     structures: list[str] = []
-    structure = ""
+    current_structure = ""
+
+    def finish_current_structure():
+        nonlocal current_structure
+        structures.append(current_structure.strip())
+        current_structure = ""
 
     for token in tokens:
-        open_block = match(open_pattern, token)
+        current_structure += token
 
+        open_block = match(open_pattern, token)
         if open_block:
-            structure += open_block
             reserved_word = match(reserved_word_pattern, open_block, 1)
 
             if not reserved_word:
                 raise RuntimeError(open_block)
 
-            end_block = "end"+reserved_word
-            close_block_stack.append(end_block)
+            close_block_expected = "end"+reserved_word
+            close_block_expected_stack.append(close_block_expected)
             continue
 
         close_block = match(close_pattern, token)
-        if not close_block:
-            structure += token
+        if not close_block and not close_block_expected_stack:
+            finish_current_structure()
             continue
 
-        if not close_block_stack:
-            raise RuntimeError("No open block found\n"+structure)
+        if not close_block:
+            continue
 
-        if close_block_stack[-1] in close_block:
-            structure += close_block
-            close_block_stack.pop()
+        if not close_block_expected_stack:
+            raise RuntimeError("No open block found\n"+current_structure)
 
-        if not close_block_stack:
-            structures.append(structure.strip())
-            structure = ""
-    else:
-        structures[-1] += tokens[-1]
+        if close_block_expected_stack[-1] in close_block:
+            close_block_expected_stack.pop()
+
+        if not close_block_expected_stack:
+            finish_current_structure()
 
     return structures
 
 
-"""
-TODO:
-Problema => dada uma variável, quais as outras que devo consultar para
-renderizar todos os blocos em que ela aparece? E quais os indíces desses blocos?
-"""
-
-
 def index_vars_in_structures(structures: list[str]):
 
-    from time import time
-    s = time()
+    def extract_vars_from_template(template: str):
+        parsed = Environment().parse(template)
+        return set(meta.find_undeclared_variables(parsed))
 
-    env = Environment()
+    vars_per_structure: list[set[str]] = [set() for _ in structures]
+    cooccurrence_map: dict[str, set[str]] = {}
 
-    def get_vars(xml: str):
-        parsed = env.parse(xml)
-        return meta.find_undeclared_variables(parsed)
+    for structure_index, template in enumerate(structures):
+        extracted_vars = extract_vars_from_template(template)
 
-    for idx, structure in enumerate(structures):
-        vars = get_vars(structure)
-        print(vars)
+        if not extracted_vars:
+            continue
 
-    print(time() - s)
+        vars_per_structure[structure_index] |= extracted_vars
+
+        for var in extracted_vars:
+            existing = cooccurrence_map.get(var, set())
+            cooccurrence_map[var] = existing | (extracted_vars - {var})
+
+    return vars_per_structure, cooccurrence_map
 
 
-class KeepVarUndefined(Undefined):
-    """
-    Keeps {{ ... }} untouched if it's not found in the context dict
-    """
+def collect_connected_vars(start_var: str, cooccurrence_map: dict[str, set[str]]):
+    stack = [start_var]
+    visited: set[str] = set()
+    result: set[str] = set()
 
-    def __str__(self):
-        return f"{{{{ {self._undefined_name} }}}}"
+    while stack:
+        var = stack.pop()
 
-    def __getattr__(self, name):
-        return f"{{{{ {self._undefined_name}.{name} }}}}"
+        if var in visited:
+            continue
 
-    def __getitem__(self, key):
-        return f"{{{{ {self._undefined_name}['{key}'] }}}}"
+        visited.add(var)
+        result.add(var)
+
+        for neighbor in cooccurrence_map.get(var, ()):
+            if neighbor not in visited:
+                stack.append(neighbor)
+            result.add(neighbor)
+
+    return result
 
 
 with open("pre-processed.xml", "r") as f:
     clob = f.read()
 
 structures = extract_complete_structures(clob)
+vars_per_structure, cooccurrence_map = index_vars_in_structures(structures)
+vars = collect_connected_vars("LISTA2", cooccurrence_map)
 
-index_vars_in_structures(structures)
+print(vars)
 
-exit(0)
+# env = Environment(trim_blocks=True)
 
-env = Environment(trim_blocks=True, undefined=KeepVarUndefined)
-
-rendered = env.from_string(result[0]).render(
-    {"LISTA": ["A", "B", "C"], "VAR_NAO_DEFINIDA": 1})
-print(rendered)
+# rendered = env.from_string(clob).render(
+#     {"LISTA": ["A", "B", "C"], "VAR_NAO_DEFINIDA": 1})
+# print(rendered)
