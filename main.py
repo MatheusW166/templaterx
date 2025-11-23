@@ -1,10 +1,11 @@
-from lxml import etree  # type: ignore
-from dataclasses import dataclass
-from os import PathLike
-from typing import IO, Dict, Any, Optional, cast
-from docxtpl import DocxTemplate
-from jinja2 import Environment, meta
 import re
+from jinja2 import Environment, meta
+from docxtpl import DocxTemplate
+from typing import IO, Dict, Any, cast
+from os import PathLike
+from dataclasses import dataclass, field
+from typing import override
+from typing import Literal
 
 
 def index_vars_in_structures(structures: list[str]):
@@ -71,29 +72,56 @@ class Structure():
         return self.clob
 
 
+@dataclass
+class DocxComponents():
+    """
+    Abstract representation of the main components of a DOCX file.
+    """
+    body: list[Structure] = field(default_factory=list)
+    headers: list[Structure] = field(default_factory=list)
+    footers: list[Structure] = field(default_factory=list)
+    properties: list[Structure] = field(default_factory=list)
+    footnotes: list[Structure] = field(default_factory=list)
+
+    Keys = Literal["body", "headers", "footers", "properties", "footnotes"]
+
+    def to_clob(self, component: Keys):
+        return "".join([s.clob for s in getattr(self, component)])
+
+    def is_component_rendered(self, component: Keys):
+        structures = getattr(self, component)
+        return all([s.is_rendered for s in structures])
+
+
 class TemplaterX(DocxTemplate):
     def __init__(
         self,
         template_file: IO[bytes] | str | PathLike,
-        jinja_env: Optional[Environment] = None
+        jinja_env=Environment(trim_blocks=True, lstrip_blocks=True)
     ) -> None:
-        self.jinja_env = jinja_env or Environment(
-            trim_blocks=True,
-            lstrip_blocks=True
-        )
-        self.structures: Optional[list[Structure]] = None
+        self._jinja_env = jinja_env
+        self._docx_components = DocxComponents()
         super().__init__(template_file)
 
+    @override
     def render_init(self):
-        # docxtpl
-        self.init_docx()
-        self.pic_map = {}
-        self.current_rendering_part = None
-        self.docx_ids_index = 1000
-        self.is_saved = False
+        super().render_init()
+        self._docx_components = DocxComponents()
 
-        # templaterx
-        self.structures = None
+    @override
+    def build_headers_footers_xml(self, context, uri, jinja_env=None):
+        for relKey, part in self.get_headers_footers(uri):
+            xml = self.get_part_xml(part)
+            encoding = self.get_headers_footers_encoding(xml)
+            xml = self.patch_xml(xml)
+            if not self._is_all_vars_in_context(template=xml, context=context):
+                continue
+            xml = self.render_xml_part(xml, part, context, jinja_env)
+            yield relKey, xml.encode(encoding)
+
+    def _is_all_vars_in_context(self, template: str, context: dict[str, Any]):
+        vars_from_template = self._extract_vars_from_template(template)
+        return len(vars_from_template - set(context.keys())) == 0
 
     def _extract_vars_from_template(self, template: str):
         parsed = Environment().parse(template)
@@ -123,13 +151,11 @@ class TemplaterX(DocxTemplate):
 
         def match(pattern: str, text: str, group=0):
             m = re.match(pattern, text, flags=re.DOTALL)
-
             if m:
                 try:
                     return cast(str, m.group(group))
                 except:
                     pass
-
             return None
 
         def finish_current_structure():
@@ -170,31 +196,28 @@ class TemplaterX(DocxTemplate):
 
         return structures
 
-    def _render_body_partial_context(self, context: dict[str, Any], jinja_env=None):
+    def _render_xml_part_partial_context(self, component_structures: list[Structure], xml: str, context: dict[str, Any]):
         if not self.docx:
             raise RuntimeError()
 
-        if not self.structures:
-            body_xml = self.get_xml()
-            pre_processed_body_xml = self.patch_xml(body_xml)
-            self.structures = self._extract_complete_structures(
-                pre_processed_body_xml
+        if not component_structures:
+            pre_processed_xml = self.patch_xml(xml)
+            component_structures = self._extract_complete_structures(
+                pre_processed_xml
             )
 
-        structures_cp = self.structures[:]
-        for idx, structure in enumerate(structures_cp):
-            vars = self._extract_vars_from_template(structure.clob)
-            if (vars - set(context.keys())):
+        for s in component_structures:
+            if s.is_rendered or not self._is_all_vars_in_context(s.clob, context):
                 continue
-            self.structures[idx].clob = self.render_xml_part(
-                structure.clob,
-                self.docx._part,
+            s.clob = self.render_xml_part(
+                s.clob,
+                self.docx._part,  # type: ignore
                 context,
-                jinja_env
+                self._jinja_env
             )
-            self.structures[idx].is_rendered = True
+            s.is_rendered = True
 
-        return self.structures
+        return component_structures
 
     def render_partial_context(
         self,
@@ -205,45 +228,28 @@ class TemplaterX(DocxTemplate):
             self.render_init()
 
         # Body
-        structures = self._render_body_partial_context(context, self.jinja_env)
+        self._docx_components.body = self._render_xml_part_partial_context(
+            component_structures=self._docx_components.body,
+            xml=self.get_xml(),
+            context=context
+        )
 
-        parser = etree.XMLParser(recover=True)
+        tree = self.fix_tables(self._docx_components.to_clob("body"))
 
-        # Gets namespace.
-        # It's gonna be within the first structure in most cases.
-        nsmap_w: Optional[str] = None
-        for s in structures:
-            if nsmap_w is not None:
-                break
-            parsed = etree.fromstring(s.clob, parser=parser)
-            if parsed is None:
-                continue
-            nsmap_w = cast(Optional[str], parsed.nsmap.get("w", nsmap_w))
-
-        if not nsmap_w:
-            raise ValueError("Attribute 'w' of Element.nsmap is 'None'")
-
-        print(nsmap_w)
-
-        exit(0)
-        tree = "\n".join([
-            etree.tostring(self.fix_tables(s.clob))
-            if s.is_rendered
-            else s.clob
-            for s in structures
-        ])
-
-        tree = etree.fromstring(tree, parser=parser)
         self.fix_docpr_ids(tree)
 
         # Replace xml tree (body only)
         self.map_tree(tree)
 
-        # # Headers
-        # headers = self.build_headers_footers_xml(
-        #     context, self.HEADER_URI, jinja_env)
-        # for relKey, xml in headers:
-        #     self.map_headers_footers_xml(relKey, xml)
+        # with open("rendered.xml", "w") as f:
+        #     f.write(etree.tostring(self.docx._element, encoding="unicode"))
+
+        # Headers
+        headers = self.build_headers_footers_xml(
+            context, self.HEADER_URI, self._jinja_env)
+
+        for relKey, xml in headers:
+            self.map_headers_footers_xml(relKey, xml)
 
         # # Footers
         # footers = self.build_headers_footers_xml(
@@ -269,4 +275,4 @@ context = {
 
 tplx = TemplaterX("template.docx")
 tplx.render_partial_context(context)
-tplx.save("_generated.docx")
+tplx.save("_generated2.docx")
