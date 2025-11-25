@@ -115,7 +115,7 @@ class TemplaterX(DocxTemplate):
         self._docx_components = DocxComponents()
 
     def _render_relitem_partial_context(self, uri: str, context):
-        for relKey, part in self.get_headers_footers(self.HEADER_URI):
+        for relKey, part in self.get_headers_footers(uri):
             xml = self.get_part_xml(part)
             encoding = self.get_headers_footers_encoding(xml)
 
