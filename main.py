@@ -1,11 +1,9 @@
 import re
 from jinja2 import Environment, meta
 from docxtpl import DocxTemplate
-from typing import IO, Dict, Any, cast
+from typing import IO, Dict, Any, cast, Optional, override, Literal
 from os import PathLike
 from dataclasses import dataclass, field
-from typing import override
-from typing import Literal
 
 
 def index_vars_in_structures(structures: list[str]):
@@ -77,19 +75,27 @@ class DocxComponents():
     """
     Abstract representation of the main components of a DOCX file.
     """
+
     body: list[Structure] = field(default_factory=list)
-    headers: list[Structure] = field(default_factory=list)
-    footers: list[Structure] = field(default_factory=list)
     properties: list[Structure] = field(default_factory=list)
     footnotes: list[Structure] = field(default_factory=list)
+    headers: dict[str, list[Structure]] = field(default_factory=dict)
+    footers: dict[str, list[Structure]] = field(default_factory=dict)
 
     Keys = Literal["body", "headers", "footers", "properties", "footnotes"]
 
-    def to_clob(self, component: Keys):
-        return "".join([s.clob for s in getattr(self, component)])
-
-    def is_component_rendered(self, component: Keys):
+    def _get_structures(self, component: Keys, relKey: Optional[str] = None):
         structures = getattr(self, component)
+        if isinstance(structures, dict):
+            structures = structures.get(relKey, [])
+        return structures
+
+    def to_clob(self, component: Keys, relKey: Optional[str] = None):
+        structures = self._get_structures(component, relKey)
+        return "".join([s.clob for s in structures])
+
+    def is_component_rendered(self, component: Keys, relKey: Optional[str] = None):
+        structures = self._get_structures(component, relKey)
         return all([s.is_rendered for s in structures])
 
 
@@ -108,16 +114,23 @@ class TemplaterX(DocxTemplate):
         super().render_init()
         self._docx_components = DocxComponents()
 
-    @override
-    def build_headers_footers_xml(self, context, uri, jinja_env=None):
-        for relKey, part in self.get_headers_footers(uri):
+    def _render_relitem_partial_context(self, uri: str, context):
+        for relKey, part in self.get_headers_footers(self.HEADER_URI):
             xml = self.get_part_xml(part)
             encoding = self.get_headers_footers_encoding(xml)
-            xml = self.patch_xml(xml)
-            if not self._is_all_vars_in_context(template=xml, context=context):
-                continue
-            xml = self.render_xml_part(xml, part, context, jinja_env)
-            yield relKey, xml.encode(encoding)
+
+            structures = self._docx_components.headers.get(relKey, [])
+            structures = self._render_xml_part_partial_context(
+                structures,
+                xml,
+                context
+            )
+
+            for s in structures:
+                if s.is_rendered:
+                    s.clob = s.clob.encode(encoding).decode(encoding)
+
+            yield relKey, structures
 
     def _is_all_vars_in_context(self, template: str, context: dict[str, Any]):
         vars_from_template = self._extract_vars_from_template(template)
@@ -227,6 +240,10 @@ class TemplaterX(DocxTemplate):
         if not self.is_rendered or not self.docx:
             self.render_init()
 
+        """
+        ====================================================================
+        Rendering docx components
+        """
         # Body
         self._docx_components.body = self._render_xml_part_partial_context(
             component_structures=self._docx_components.body,
@@ -234,31 +251,37 @@ class TemplaterX(DocxTemplate):
             context=context
         )
 
-        tree = self.fix_tables(self._docx_components.to_clob("body"))
+        # Headers
+        for relKey, structures in self._render_relitem_partial_context(self.HEADER_URI, context):
+            self._docx_components.headers[relKey] = structures
 
-        self.fix_docpr_ids(tree)
+        # Footers
+        for relKey, structures in self._render_relitem_partial_context(self.FOOTER_URI, context):
+            self._docx_components.footers[relKey] = structures
 
-        # Replace xml tree (body only)
-        self.map_tree(tree)
-
-        # with open("rendered.xml", "w") as f:
-        #     f.write(etree.tostring(self.docx._element, encoding="unicode"))
+        """
+        ====================================================================
+        Replacing original document: After all renders
+        """
+        # Body
+        if self._docx_components.is_component_rendered("body"):
+            tree = self.fix_tables(self._docx_components.to_clob("body"))
+            self.fix_docpr_ids(tree)
+            self.map_tree(tree)
 
         # Headers
-        headers = self.build_headers_footers_xml(
-            context, self.HEADER_URI, self._jinja_env)
+        for relKey in self._docx_components.headers.keys():
+            if self._docx_components.is_component_rendered("headers", relKey):
+                xml = self._docx_components.to_clob("headers", relKey)
+                self.map_headers_footers_xml(relKey, xml)
 
-        for relKey, xml in headers:
-            self.map_headers_footers_xml(relKey, xml)
-
-        # # Footers
-        # footers = self.build_headers_footers_xml(
-        #     context, self.FOOTER_URI, jinja_env)
-        # for relKey, xml in footers:
-        #     self.map_headers_footers_xml(relKey, xml)
+        # Footers
+        for relKey in self._docx_components.footers.keys():
+            if self._docx_components.is_component_rendered("footers", relKey):
+                xml = self._docx_components.to_clob("footers", relKey)
+                self.map_headers_footers_xml(relKey, xml)
 
         # self.render_properties(context, jinja_env)
-
         # self.render_footnotes(context, jinja_env)
 
         # set rendered flag
@@ -275,4 +298,5 @@ context = {
 
 tplx = TemplaterX("template.docx")
 tplx.render_partial_context(context)
-tplx.save("_generated2.docx")
+tplx.render_partial_context({"CABECALHO": "ESTE É O CABECALHO"})
+tplx.save("_generated3.docx")
