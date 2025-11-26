@@ -77,8 +77,8 @@ class DocxComponents():
     """
 
     body: list[Structure] = field(default_factory=list)
-    properties: list[Structure] = field(default_factory=list)
     footnotes: list[Structure] = field(default_factory=list)
+    properties: dict[str, list[Structure]] = field(default_factory=dict)
     headers: dict[str, list[Structure]] = field(default_factory=dict)
     footers: dict[str, list[Structure]] = field(default_factory=dict)
 
@@ -113,6 +113,64 @@ class TemplaterX(DocxTemplate):
     def render_init(self):
         super().render_init()
         self._docx_components = DocxComponents()
+
+    def _render_footnotes_partial_context(self, context: Dict[str, Any]):
+        # TODO: _render_footnotes_partial_context
+        # Integrate to partial context rendering
+
+        if not self.docx:
+            raise ValueError("'docx' is not defined")
+
+        for section in self.docx.sections:
+            if not section.part.package:
+                continue
+            for part in section.part.package.parts:
+                if part.content_type == (
+                    "application/vnd.openxmlformats-officedocument"
+                    ".wordprocessingml.footnotes+xml"
+                ):
+                    xml = self.patch_xml(
+                        part.blob.decode("utf-8")
+                        if isinstance(part.blob, bytes)
+                        else part.blob
+                    )
+                    xml = self.render_xml_part(
+                        xml,
+                        part,
+                        context,
+                        self._jinja_env
+                    )
+                    part._blob = xml.encode("utf-8")
+
+    def _render_properties_partial_context(self, context):
+        # List of string attributes of docx.opc.coreprops.CoreProperties which are strings.
+        # It seems that some attributes cannot be written as strings. Those are commented out.
+        properties = [
+            "author",
+            # 'category',
+            "comments",
+            # 'content_status',
+            "identifier",
+            # 'keywords',
+            "language",
+            # 'last_modified_by',
+            "subject",
+            "title",
+            # 'version',
+        ]
+
+        if not self.docx:
+            raise ValueError("'docx' is not defined")
+
+        for prop in properties:
+            xml = getattr(self.docx.core_properties, prop)
+            structures = self._docx_components.properties.get(prop, [])
+            structures = self._render_xml_part_partial_context(
+                structures,
+                xml,
+                context
+            )
+            yield prop, structures
 
     def _render_relitem_partial_context(self, uri: str, context):
         for relKey, part in self.get_headers_footers(uri):
@@ -259,6 +317,12 @@ class TemplaterX(DocxTemplate):
         for relKey, structures in self._render_relitem_partial_context(self.FOOTER_URI, context):
             self._docx_components.footers[relKey] = structures
 
+        # Properties
+        for prop, structures in self._render_properties_partial_context(context):
+            self._docx_components.properties[prop] = structures
+
+        # TODO: Footnotes - Call rendring function
+
         """
         ====================================================================
         Replacing original document: After all renders
@@ -281,10 +345,13 @@ class TemplaterX(DocxTemplate):
                 xml = self._docx_components.to_clob("footers", relKey)
                 self.map_headers_footers_xml(relKey, xml)
 
-        # self.render_properties(context, jinja_env)
-        # self.render_footnotes(context, jinja_env)
+        # Properties
+        for prop in self._docx_components.properties.keys():
+            if self._docx_components.is_component_rendered("properties", prop):
+                xml = self._docx_components.to_clob("properties", prop)
+                setattr(self.docx.core_properties, prop, xml)  # type: ignore
 
-        # set rendered flag
+        # TODO: Footnotes - Call mapping function
 
         self.is_rendered = True
 
