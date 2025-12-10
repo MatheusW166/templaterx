@@ -54,8 +54,9 @@ def collect_connected_vars(start_var: str, cooccurrence_map: dict[str, set[str]]
 
 @dataclass
 class Structure():
-    clob: str
-    is_rendered: bool = False
+    clob = ""
+    is_control_block = False
+    is_rendered = False
 
     def __add__(self, other: str):
         if isinstance(other, str):
@@ -114,33 +115,32 @@ class TemplaterX(DocxTemplate):
         super().render_init()
         self._docx_components = DocxComponents()
 
-    def _render_footnotes_partial_context(self, context: Dict[str, Any]):
-        # TODO: _render_footnotes_partial_context
-        # Integrate to partial context rendering
-
+    def _get_footnotes(self):
         if not self.docx:
             raise ValueError("'docx' is not defined")
 
         for section in self.docx.sections:
-            if not section.part.package:
+            if section.part.package is None:
                 continue
             for part in section.part.package.parts:
                 if part.content_type == (
                     "application/vnd.openxmlformats-officedocument"
                     ".wordprocessingml.footnotes+xml"
                 ):
-                    xml = self.patch_xml(
-                        part.blob.decode("utf-8")
-                        if isinstance(part.blob, bytes)
-                        else part.blob
-                    )
-                    xml = self.render_xml_part(
-                        xml,
-                        part,
-                        context,
-                        self._jinja_env
-                    )
-                    part._blob = xml.encode("utf-8")
+                    return part
+
+    def _render_footnotes_partial_context(self, context: Dict[str, Any]) -> list[Structure]:
+        footnotes = self._get_footnotes()
+
+        if not footnotes:
+            return []
+
+        xml = footnotes.blob.decode("utf-8")
+        return self._render_xml_part_partial_context(
+            self._docx_components.footnotes,
+            xml,
+            context
+        )
 
     def _render_properties_partial_context(self, context):
         # List of string attributes of docx.opc.coreprops.CoreProperties which are strings.
@@ -218,7 +218,7 @@ class TemplaterX(DocxTemplate):
 
         close_block_expected_stack: list[str] = []
         structures: list[Structure] = []
-        current_structure = Structure("")
+        current_structure = Structure()
 
         def match(pattern: str, text: str, group=0):
             m = re.match(pattern, text, flags=re.DOTALL)
@@ -229,10 +229,11 @@ class TemplaterX(DocxTemplate):
                     pass
             return None
 
-        def finish_current_structure():
+        def finish_current_structure(is_control_block=False):
             nonlocal current_structure
+            current_structure.is_control_block = is_control_block
             structures.append(current_structure)
-            current_structure = Structure("")
+            current_structure = Structure()
 
         for token in tokens:
             current_structure += token
@@ -263,13 +264,11 @@ class TemplaterX(DocxTemplate):
                 close_block_expected_stack.pop()
 
             if not close_block_expected_stack:
-                finish_current_structure()
+                finish_current_structure(is_control_block=True)
 
         return structures
 
     def _render_xml_part_partial_context(self, component_structures: list[Structure], xml: str, context: dict[str, Any]):
-        if not self.docx:
-            raise RuntimeError()
 
         if not component_structures:
             pre_processed_xml = self.patch_xml(xml)
@@ -277,16 +276,20 @@ class TemplaterX(DocxTemplate):
                 pre_processed_xml
             )
 
-        for s in component_structures:
-            if s.is_rendered or not self._is_all_vars_in_context(s.clob, context):
-                continue
-            s.clob = self.render_xml_part(
-                s.clob,
-                self.docx._part,  # type: ignore
+        def render(structure: Structure):
+            structure.clob = self.render_xml_part(
+                structure.clob,
+                None,
                 context,
                 self._jinja_env
             )
-            s.is_rendered = True
+            structure.is_rendered = True
+
+        for structure in component_structures:
+            if not structure.is_control_block:
+                render(structure)
+            elif not structure.is_rendered and self._is_all_vars_in_context(structure.clob, context):
+                render(structure)
 
         return component_structures
 
@@ -302,6 +305,7 @@ class TemplaterX(DocxTemplate):
         ====================================================================
         Rendering docx components
         """
+
         # Body
         self._docx_components.body = self._render_xml_part_partial_context(
             component_structures=self._docx_components.body,
@@ -321,7 +325,10 @@ class TemplaterX(DocxTemplate):
         for prop, structures in self._render_properties_partial_context(context):
             self._docx_components.properties[prop] = structures
 
-        # TODO: Footnotes - Call rendring function
+        # Footnotes
+        self._docx_components.footnotes = self._render_footnotes_partial_context(
+            context
+        )
 
         """
         ====================================================================
@@ -351,7 +358,10 @@ class TemplaterX(DocxTemplate):
                 xml = self._docx_components.to_clob("properties", prop)
                 setattr(self.docx.core_properties, prop, xml)  # type: ignore
 
-        # TODO: Footnotes - Call mapping function
+        # Footnotes
+        docx_part = self._get_footnotes()
+        if docx_part:
+            docx_part._blob = self._docx_components.to_clob("footnotes").encode("utf-8")
 
         self.is_rendered = True
 
@@ -365,5 +375,5 @@ context = {
 
 tplx = TemplaterX("template.docx")
 tplx.render_partial_context(context)
-tplx.render_partial_context({"CABECALHO": "ESTE É O CABECALHO"})
-tplx.save("_generated3.docx")
+# tplx.render_partial_context({"CABECALHO": "ESTE É O CABECALHO"})
+tplx.save("_generated2.docx")
