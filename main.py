@@ -115,6 +115,40 @@ class TemplaterX(DocxTemplate):
         super().render_init()
         self._docx_components = DocxComponents()
 
+    @override
+    def save(self, filename: IO[bytes] | str | PathLike, *args, **kwargs) -> None:
+        # Replacing original document
+
+        # Body
+        if self._docx_components.is_component_rendered("body"):
+            tree = self.fix_tables(self._docx_components.to_clob("body"))
+            self.fix_docpr_ids(tree)
+            self.map_tree(tree)
+
+        # Headers
+        for relKey in self._docx_components.headers.keys():
+            if self._docx_components.is_component_rendered("headers", relKey):
+                xml = self._docx_components.to_clob("headers", relKey)
+                self.map_headers_footers_xml(relKey, xml)
+
+        # Footers
+        for relKey in self._docx_components.footers.keys():
+            if self._docx_components.is_component_rendered("footers", relKey):
+                xml = self._docx_components.to_clob("footers", relKey)
+                self.map_headers_footers_xml(relKey, xml)
+
+        # Properties
+        for prop in self._docx_components.properties.keys():
+            if self._docx_components.is_component_rendered("properties", prop):
+                xml = self._docx_components.to_clob("properties", prop)
+                setattr(self.docx.core_properties, prop, xml)  # type: ignore
+
+        # Footnotes
+        footnotes = self._docx_components.to_clob("footnotes").encode("utf-8")
+        self._get_footnotes()._blob = footnotes  # type: ignore
+
+        return super().save(filename, *args, **kwargs)
+
     def _get_footnotes(self):
         if not self.docx:
             raise ValueError("'docx' is not defined")
@@ -301,11 +335,6 @@ class TemplaterX(DocxTemplate):
         if not self.is_rendered or not self.docx:
             self.render_init()
 
-        """
-        ====================================================================
-        Rendering docx components
-        """
-
         # Body
         self._docx_components.body = self._render_xml_part_partial_context(
             component_structures=self._docx_components.body,
@@ -329,39 +358,6 @@ class TemplaterX(DocxTemplate):
         self._docx_components.footnotes = self._render_footnotes_partial_context(
             context
         )
-
-        """
-        ====================================================================
-        Replacing original document: After all renders
-        """
-        # Body
-        if self._docx_components.is_component_rendered("body"):
-            tree = self.fix_tables(self._docx_components.to_clob("body"))
-            self.fix_docpr_ids(tree)
-            self.map_tree(tree)
-
-        # Headers
-        for relKey in self._docx_components.headers.keys():
-            if self._docx_components.is_component_rendered("headers", relKey):
-                xml = self._docx_components.to_clob("headers", relKey)
-                self.map_headers_footers_xml(relKey, xml)
-
-        # Footers
-        for relKey in self._docx_components.footers.keys():
-            if self._docx_components.is_component_rendered("footers", relKey):
-                xml = self._docx_components.to_clob("footers", relKey)
-                self.map_headers_footers_xml(relKey, xml)
-
-        # Properties
-        for prop in self._docx_components.properties.keys():
-            if self._docx_components.is_component_rendered("properties", prop):
-                xml = self._docx_components.to_clob("properties", prop)
-                setattr(self.docx.core_properties, prop, xml)  # type: ignore
-
-        # Footnotes
-        docx_part = self._get_footnotes()
-        if docx_part:
-            docx_part._blob = self._docx_components.to_clob("footnotes").encode("utf-8")
 
         self.is_rendered = True
 
