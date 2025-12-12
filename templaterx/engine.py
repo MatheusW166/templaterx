@@ -1,9 +1,8 @@
-import re
 from docxtpl import DocxTemplate
-from typing import IO, Dict, Any, cast
+from typing import IO, Dict, Any
 from os import PathLike
 from .helpers import jinja
-from .structures import DocxComponents, Structure
+from .structures import *
 
 Context = Dict[str, Any]
 TemplateFile = IO[bytes] | str | PathLike
@@ -141,7 +140,7 @@ class TemplaterX():
 
     def _pre_process_xml(self, xml: str):
         pre_processed_xml = self._docx_template.patch_xml(xml)
-        return self._extract_complete_structures(pre_processed_xml)
+        return self._extract_complete_structures_from_xml(pre_processed_xml)
 
     def _render_body(self, context: Context):
         structures = self._docx_components.body
@@ -155,81 +154,14 @@ class TemplaterX():
         )
 
     def _is_all_vars_in_context(self, template: str, context: Context):
-        vars_from_template = self._extract_vars_from_template(template)
+        vars_from_template = self._extract_vars_from_xml(template)
         return len(vars_from_template - set(context.keys())) == 0
 
-    def _extract_vars_from_template(self, template: str):
-        return jinja.extract_jinja_vars(template)
+    def _extract_vars_from_xml(self, xml: str):
+        return jinja.extract_jinja_vars_from_xml(xml)
 
-    def _extract_complete_structures(self, xml: str):
-        control_block_pattern = r"(\{\%.*?\%\})"
-        tokens: list[str] = re.split(
-            control_block_pattern,
-            xml,
-            flags=re.DOTALL
-        )
-
-        # Anything like {%...%} without "end"
-        open_pattern = r"\{\%\s*(?!.*end).*?\%\}"
-
-        # Anything like {% end... %}
-        close_pattern = r"\{\%\s*end.*?\%\}"
-
-        # Gets the reserved word, example:
-        # {% for... %} => for, {% if... %} => if
-        reserved_word_pattern = r"\{\%\s*(\S+)"
-
-        close_block_expected_stack: list[str] = []
-        structures: list[Structure] = []
-        current_structure = Structure()
-
-        def match(pattern: str, text: str, group=0):
-            m = re.match(pattern, text, flags=re.DOTALL)
-            if m:
-                try:
-                    return cast(str, m.group(group))
-                except:
-                    pass
-            return None
-
-        def finish_current_structure(is_control_block=False):
-            nonlocal current_structure
-            current_structure.is_control_block = is_control_block
-            structures.append(current_structure)
-            current_structure = Structure()
-
-        for token in tokens:
-            current_structure += token
-
-            open_block = match(open_pattern, token)
-            if open_block:
-                reserved_word = match(reserved_word_pattern, open_block, 1)
-
-                if not reserved_word:
-                    raise RuntimeError(open_block)
-
-                close_block_expected = "end"+reserved_word
-                close_block_expected_stack.append(close_block_expected)
-                continue
-
-            close_block = match(close_pattern, token)
-            if not close_block and not close_block_expected_stack:
-                finish_current_structure()
-                continue
-
-            if not close_block:
-                continue
-
-            if not close_block_expected_stack:
-                raise RuntimeError(f"No open block found\n{current_structure}")
-
-            if close_block_expected_stack[-1] in close_block:
-                close_block_expected_stack.pop()
-
-            if not close_block_expected_stack:
-                finish_current_structure(is_control_block=True)
-
-        return structures
+    def _extract_complete_structures_from_xml(self, xml: str):
+        return extract_jinja_structures_from_xml(xml)
 
     def _render_xml_part_partial_context(self, component_structures: list[Structure], context: Context):
 

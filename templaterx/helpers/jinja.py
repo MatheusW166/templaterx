@@ -16,10 +16,10 @@ def get_environment():
     return Environment(
         undefined=KeepPlaceholderUndefined,
         trim_blocks=True,
-        lstrip_blocks=True
+        lstrip_blocks=True,
     )
 
 
-def extract_jinja_vars(template: str):
-    parsed = Environment().parse(template)
+def extract_jinja_vars_from_xml(xml: str):
+    parsed = Environment().parse(xml)
     return set(meta.find_undeclared_variables(parsed))

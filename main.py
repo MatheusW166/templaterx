@@ -28,22 +28,19 @@ def index_vars_in_structures(structures: list[str]):
 
 def collect_connected_vars(start_var: str, cooccurrence_map: dict[str, set[str]]):
     stack = [start_var]
-    visited: set[str] = set()
     result: set[str] = set()
 
     while stack:
         var = stack.pop()
 
-        if var in visited:
+        if var in result:
             continue
 
-        visited.add(var)
         result.add(var)
 
         for neighbor in cooccurrence_map.get(var, ()):
-            if neighbor not in visited:
+            if neighbor not in result:
                 stack.append(neighbor)
-            result.add(neighbor)
 
     return result
 
@@ -53,9 +50,12 @@ context = {
     "VARIAVEL": "Apenas uma variável",
     "VARIAVEL2": "COLOQUEI NO FOOTNOTE",
     "LIVRE": "Var livre",
-    "VAR_NAO_DEFINIDA": 2,
 }
 
 tplx = TemplaterX("_template.docx")
 tplx.render_partial_context(context)
+tplx.render_partial_context(context={
+    "LISTA": ["A", "B", "C"],
+    "VAR_NAO_DEFINIDA": 2,
+})
 tplx.save("_generated.docx")
