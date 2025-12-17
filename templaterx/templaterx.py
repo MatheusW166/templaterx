@@ -19,13 +19,6 @@ class TemplaterX():
             self._docx_template
         ).build()
 
-    @property
-    def docx(self):
-        docx = self._docx_template.docx
-        if not docx:
-            raise ValueError("No docx")
-        return docx
-
     def _render_footnotes(self, context: CONTEXT):
         footnotes = self._docx_components.footnotes
         self._docx_components.footnotes = self._render_context(
@@ -109,9 +102,9 @@ class TemplaterX():
             self._docx_template.map_headers_footers_xml(relKey, xml)
 
         # Properties
-        for prop in self._docx_components.properties:
-            xml = self._docx_components.to_clob("properties", prop)
-            setattr(self.docx.core_properties, prop, xml)
+        # for prop in self._docx_components.properties:
+        #     xml = self._docx_components.to_clob("properties", prop)
+        #     setattr(self.docx.core_properties, prop, xml)
 
         # Footnotes
         docxtpl.set_footnotes(
