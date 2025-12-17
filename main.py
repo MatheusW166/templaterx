@@ -1,18 +1,13 @@
-from jinja2 import Environment, meta
-from templaterx.engine import TemplaterX
+from templaterx import TemplaterX
+from templaterx.helpers import jinja
 
 
 def index_vars_in_structures(structures: list[str]):
-
-    def extract_vars_from_template(template: str):
-        parsed = Environment().parse(template)
-        return set(meta.find_undeclared_variables(parsed))
-
     vars_per_structure: list[set[str]] = [set() for _ in structures]
     cooccurrence_map: dict[str, set[str]] = {}
 
     for structure_index, template in enumerate(structures):
-        extracted_vars = extract_vars_from_template(template)
+        extracted_vars = jinja.extract_jinja_vars_from_xml(template)
 
         if not extracted_vars:
             continue
@@ -53,9 +48,9 @@ context = {
 }
 
 tplx = TemplaterX("_template.docx")
-tplx.render_partial_context(context)
-tplx.render_partial_context(context={
+tplx.render(context)
+tplx.render(context={
     "LISTA": ["A", "B", "C"],
-    "VAR_NAO_DEFINIDA": 2,
+    "VAR_NAO_DEFINIDA": 3,
 })
 tplx.save("_generated.docx")
