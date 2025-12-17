@@ -6,12 +6,12 @@ from .structures import *
 from .docx_components import *
 from jinja2 import Environment
 
-Context = Dict[str, Any]
-TemplateFile = IO[bytes] | str | PathLike
+CONTEXT = Dict[str, Any]
+TEMPLATE_FILE = IO[bytes] | str | PathLike
 
 
 class TemplaterX():
-    def __init__(self, template_file: TemplateFile, jinja_env: Optional[Environment] = None) -> None:
+    def __init__(self, template_file: TEMPLATE_FILE, jinja_env: Optional[Environment] = None) -> None:
         self._jinja_env = jinja.get_keep_placeholders_environment(jinja_env)
         self._docx_template = DocxTemplate(template_file)
         self._docx_template.render_init()
@@ -26,35 +26,35 @@ class TemplaterX():
             raise ValueError("No docx")
         return docx
 
-    def _render_footnotes(self, context: Context):
+    def _render_footnotes(self, context: CONTEXT):
         footnotes = self._docx_components.footnotes
         self._docx_components.footnotes = self._render_context(
             footnotes,
             context
         )
 
-    def _render_properties(self, context: Context):
+    def _render_properties(self, context: CONTEXT):
         props = self._docx_components.properties
         for prop in props:
             props[prop] = self._render_context(props[prop], context)
 
-    def _render_relitem(self, component: RelItems, context: Context):
+    def _render_relitem(self, component: REL_ITEMS, context: CONTEXT):
         part = self._docx_components[component]
         for relId in part:
             part[relId] = self._render_context(part[relId], context)
 
-    def _render_body(self, context: Context):
+    def _render_body(self, context: CONTEXT):
         body = self._docx_components.body
         self._docx_components.body = self._render_context(body, context)
 
     def _extract_vars_from_xml(self, xml: str):
         return jinja.extract_jinja_vars_from_xml(xml)
 
-    def _is_all_vars_in_context(self, template: str, context: Context):
+    def _is_all_vars_in_context(self, template: str, context: CONTEXT):
         vars_from_template = self._extract_vars_from_xml(template)
         return len(vars_from_template - set(context.keys())) == 0
 
-    def _render_context(self, component_structures: list[Structure], context: Context):
+    def _render_context(self, component_structures: list[Structure], context: CONTEXT):
 
         def render(structure: Structure):
             structure.clob = self._docx_template.render_xml_part(
@@ -78,7 +78,7 @@ class TemplaterX():
 
         return component_structures
 
-    def render(self, context: Context):
+    def render(self, context: CONTEXT):
 
         self._render_body(context)
         self._render_relitem("headers", context)
@@ -88,7 +88,7 @@ class TemplaterX():
 
         self._docx_template.is_rendered = True
 
-    def save(self, filename: TemplateFile, *args, **kwargs) -> None:
+    def save(self, filename: TEMPLATE_FILE, *args, **kwargs) -> None:
         # Replacing original document
 
         # Body

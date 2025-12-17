@@ -4,8 +4,8 @@ from docxtpl import DocxTemplate
 from .helpers import docxtpl
 from .structures import *
 
-RelItems = Literal["headers", "footers"]
-Keys = Literal["body", "properties", "footnotes"] | RelItems
+REL_ITEMS = Literal["headers", "footers"]
+KEYS = Literal["body", "properties", "footnotes"] | REL_ITEMS
 
 
 @dataclass
@@ -20,20 +20,20 @@ class DocxComponents():
     headers: dict[str, list[Structure]] = field(default_factory=dict)
     footers: dict[str, list[Structure]] = field(default_factory=dict)
 
-    def __getitem__(self, component: RelItems) -> dict[str, list[Structure]]:
+    def __getitem__(self, component: REL_ITEMS) -> dict[str, list[Structure]]:
         return getattr(self, component)
 
-    def _get_structures(self, component: Keys, relKey: Optional[str] = None):
+    def _get_structures(self, component: KEYS, relKey: Optional[str] = None) -> list[Structure]:
         structures = getattr(self, component)
         if isinstance(structures, dict):
             structures = structures.get(relKey, [])
         return structures
 
-    def to_clob(self, component: Keys, relKey: Optional[str] = None):
+    def to_clob(self, component: KEYS, relKey: Optional[str] = None):
         structures = self._get_structures(component, relKey)
         return "".join([s.clob for s in structures])
 
-    def is_component_rendered(self, component: Keys, relKey: Optional[str] = None):
+    def is_component_rendered(self, component: KEYS, relKey: Optional[str] = None):
         structures = self._get_structures(component, relKey)
         return all([s.is_rendered for s in structures])
 
