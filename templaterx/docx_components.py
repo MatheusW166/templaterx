@@ -4,6 +4,9 @@ from docxtpl import DocxTemplate
 from .helpers import docxtpl
 from .structures import *
 
+RelItems = Literal["headers", "footers"]
+Keys = Literal["body", "properties", "footnotes"] | RelItems
+
 
 @dataclass
 class DocxComponents():
@@ -17,9 +20,7 @@ class DocxComponents():
     headers: dict[str, list[Structure]] = field(default_factory=dict)
     footers: dict[str, list[Structure]] = field(default_factory=dict)
 
-    Keys = Literal["body", "headers", "footers", "properties", "footnotes"]
-
-    def __getitem__(self, component: Literal["headers", "footers"]) -> dict[str, list[Structure]]:
+    def __getitem__(self, component: RelItems) -> dict[str, list[Structure]]:
         return getattr(self, component)
 
     def _get_structures(self, component: Keys, relKey: Optional[str] = None):

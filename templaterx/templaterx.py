@@ -38,13 +38,10 @@ class TemplaterX():
         for prop in props:
             props[prop] = self._render_context(props[prop], context)
 
-    def _render_relitem(self, component: Literal["headers", "footers"], context: Context):
+    def _render_relitem(self, component: RelItems, context: Context):
         part = self._docx_components[component]
         for relId in part:
             part[relId] = self._render_context(part[relId], context)
-            for s in part[relId]:
-                if s.is_rendered:
-                    s.clob = s.clob.encode("utf-8").decode("utf-8")
 
     def _render_body(self, context: Context):
         body = self._docx_components.body
