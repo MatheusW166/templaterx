@@ -5,7 +5,8 @@ from .helpers import docxtpl
 from .structures import *
 
 REL_ITEMS = Literal["headers", "footers"]
-KEYS = Literal["body", "properties", "footnotes"] | REL_ITEMS
+CORE_ITEMS = Literal["body", "properties", "footnotes"]
+KEYS = CORE_ITEMS | REL_ITEMS
 
 
 @dataclass
@@ -88,26 +89,26 @@ class DocxComponentsBuilder:
         xml = part.blob.decode("utf-8")
         self._components.footnotes = self._pre_process_xml(xml)
 
-    def _build_properties(self):
-        properties = [
-            "author",
-            "comments",
-            "identifier",
-            "language",
-            "subject",
-            "title",
-        ]
+    # def _build_properties(self):
+    #     properties = [
+    #         "author",
+    #         "comments",
+    #         "identifier",
+    #         "language",
+    #         "subject",
+    #         "title",
+    #     ]
 
-        core = self.docx.core_properties
+    #     core = self.docx.core_properties
 
-        for prop in properties:
-            value = getattr(core, prop, None)
-            if value:
-                self._components.properties[prop] = self._pre_process_xml(
-                    value
-                )
-            else:
-                self._components.properties[prop] = []
+    #     for prop in properties:
+    #         value = getattr(core, prop, None)
+    #         if value:
+    #             self._components.properties[prop] = self._pre_process_xml(
+    #                 value
+    #             )
+    #         else:
+    #             self._components.properties[prop] = []
 
     def _builder_headers_and_footers(self):
         self._build_relitem(self._docx_template.HEADER_URI)
