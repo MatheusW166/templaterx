@@ -20,6 +20,10 @@ class DocxComponents():
     headers: dict[str, list[Structure]] = field(default_factory=dict)
     footers: dict[str, list[Structure]] = field(default_factory=dict)
 
+    _control_blocks_adjacency: dict[str,
+                                    set[str]] = field(default_factory=dict)
+    _template_vars: set[str] = field(default_factory=set)
+
     def __getitem__(self, component: REL_ITEMS) -> dict[str, list[Structure]]:
         return getattr(self, component)
 
@@ -37,23 +41,31 @@ class DocxComponents():
         structures = self._get_structures(component, relKey)
         return all([s.is_rendered for s in structures])
 
+    def get_connected_vars(self, var: str) -> set[str]:
+        return collect_control_blocks_connected_vars(var, self._control_blocks_adjacency)
+
+    def get_all_vars(self) -> set[str]:
+        return {*self._template_vars}
+
 
 class DocxComponentsBuilder:
     """
     Builds a DocxComponents instance by extracting and pre-processing
     all XML parts of a DOCX template.
 
-    This class is responsible ONLY for:
+    This class is responsible for:
     - locating XML parts
     - patching XML
     - extracting Jinja2 structures
-
-    It does NOT render any context.
+    - creating the adjacency list of control blocks
+    - creating a list of all template variables
     """
 
     def __init__(self, docx_template: DocxTemplate):
-        self._docx_template = docx_template
         self._components = DocxComponents()
+        self._docx_template = docx_template
+        self._control_blocks_adjacency: dict[str, set[str]] = {}
+        self._template_vars: set[str] = set()
 
     @property
     def docx(self):
@@ -66,11 +78,24 @@ class DocxComponentsBuilder:
         self._build_body()
         self._build_footnotes()
         self._builder_headers_and_footers()
+        self._components._template_vars = self._template_vars
+        self._components._control_blocks_adjacency = self._control_blocks_adjacency
         return self._components
+
+    def _add_in_adjacency_map(self, structures: list[Structure]):
+        map = self._control_blocks_adjacency
+        control_blocks_var_adjacency_map(structures, map)
+
+    def _add_in_template_vars(self, structures: list[Structure]):
+        for vars in extract_vars_from_structures(structures):
+            self._template_vars |= vars
 
     def _pre_process_xml(self, xml: str) -> list[Structure]:
         patched_xml = self._docx_template.patch_xml(xml)
-        return extract_jinja_structures_from_xml(patched_xml)
+        structures = extract_jinja_structures_from_xml(patched_xml)
+        self._add_in_adjacency_map(structures)
+        self._add_in_template_vars(structures)
+        return structures
 
     def _build_body(self):
         xml = self._docx_template.get_xml()
