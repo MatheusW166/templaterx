@@ -3,7 +3,7 @@ name = "templaterx"
 version = "0.1.0"
 description = ""
 authors = [
-    {name = "Matheus Wagner",email = "matheuswagnerdossantos@outlook.com"}
+    { name = "Matheus Wagner", email = "matheuswagnerdossantos@outlook.com" },
 ]
 readme = "README.md"
 requires-python = ">=3.12"
@@ -22,7 +22,7 @@ dependencies = [
     "pycparser (==2.22)",
     "python-docx (==1.2.0)",
     "python-dotenv (==1.0.1)",
-    "sqlalchemy (==2.0.38)"
+    "sqlalchemy (==2.0.38)",
 ]
 
 
@@ -35,5 +35,5 @@ dev = [
     "typing-extensions (==4.12.2)",
     "six (==1.17.0)",
     "setuptools (>=80.9.0,<81.0.0)",
-    "pytest (>=9.0.2,<10.0.0)"
+    "pytest (>=9.0.2,<10.0.0)",
 ]
