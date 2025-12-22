@@ -1,4 +1,4 @@
-from templaterx import TemplaterX
+from src import *
 
 
 context = {
@@ -14,4 +14,4 @@ tplx.render(context={
     "LISTA": ["A", "B", "C"],
     "VAR_NAO_DEFINIDA": 3,
 })
-tplx.save("_generated.docx")
+tplx.save("_generated2.docx")
