@@ -36,13 +36,13 @@ def control_blocks_var_adjacency_map(structures: list[Structure], prev: dict[str
     ### Example input::
 
         {%for d in LIST%}
+            {{d}}
             {% if VAR1 %}
-                ...
+                COND1
             {% endif %}
             {% if VAR2 %}
-                ...
+                COND2
             {% endif %}
-            ...
         {% endfor %}
 
     ### Example output::
