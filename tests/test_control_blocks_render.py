@@ -28,7 +28,7 @@ def test_p_for_block_is_kept_when_iterable_is_missing(paths):
 def test_p_for_block_is_kept_when_inner_vars_are_missing(paths):
     tpl = TemplaterX(paths.template)
 
-    tpl.render({"PARAGRAPH": faker.words(nb=3)})
+    tpl.render({"PARAGRAPH": [faker.name() for _ in range(3)]})
     xml = docx.save_and_get_xml(tpl, paths.out)
 
     assert r"{% for p in PARAGRAPH%}" in xml
@@ -41,7 +41,7 @@ def test_p_for_block_is_kept_when_inner_vars_are_missing(paths):
 def test_p_for_block_is_rendered_when_all_vars_exist(paths):
     tpl = TemplaterX(paths.template)
 
-    paragraph = faker.words(nb=3)
+    paragraph = [faker.name() for _ in range(3)]
     var = faker.word()
     var1 = faker.random_int()
 
@@ -64,7 +64,7 @@ def test_p_for_block_is_rendered_when_all_vars_exist(paths):
 def test_table_for_block_is_kept_when_inner_vars_are_missing(paths):
     tpl = TemplaterX(paths.template)
 
-    table = faker.words(nb=3)
+    table = [faker.name() for _ in range(3)]
 
     tpl.render({"TABLE": table, "VAR1": 1, "VAR2": 1})
     xml = docx.save_and_get_xml(tpl, paths.out)
@@ -75,14 +75,13 @@ def test_table_for_block_is_kept_when_inner_vars_are_missing(paths):
     assert r"{% if VAR2==1%}" in xml
     assert r"{% if VAR3==1%}" in xml
 
-    # Check if no value was written
     assert all(row not in xml for row in table)
 
 
 def test_table_for_block_is_rendered_when_all_vars_exist(paths):
     tpl = TemplaterX(paths.template)
 
-    table = faker.words(nb=3)
+    table = [faker.name() for _ in range(3)]
 
     tpl.render({"TABLE": table, "VAR1": 1, "VAR2": 1, "VAR3": ""})
     xml = docx.save_and_get_xml(tpl, paths.out)
