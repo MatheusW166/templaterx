@@ -18,7 +18,7 @@ def test_p_for_block_is_kept_when_iterable_is_missing(paths):
     context = {"VAR": faker.word(), "VAR1": faker.random_int()}
 
     tpl.render(context)
-    xml = docx.save_and_get_xml(tpl, paths.out)
+    xml = docx.get_rendered_xml(tpl, paths.out)
 
     assert r"{% for p in PARAGRAPH%}" in xml
     assert r"{{p}}" in xml
@@ -29,7 +29,7 @@ def test_p_for_block_is_kept_when_inner_vars_are_missing(paths):
     tpl = TemplaterX(paths.template)
 
     tpl.render({"PARAGRAPH": [faker.name() for _ in range(3)]})
-    xml = docx.save_and_get_xml(tpl, paths.out)
+    xml = docx.get_rendered_xml(tpl, paths.out)
 
     assert r"{% for p in PARAGRAPH%}" in xml
     assert r"{{p}}" in xml
@@ -50,7 +50,7 @@ def test_p_for_block_is_rendered_when_all_vars_exist(paths):
         "VAR": var,
         "VAR1": var1,
     })
-    xml = docx.save_and_get_xml(tpl, paths.out)
+    xml = docx.get_rendered_xml(tpl, paths.out)
 
     assert all(p in xml for p in paragraph)
     assert var in xml
@@ -67,7 +67,7 @@ def test_table_for_block_is_kept_when_inner_vars_are_missing(paths):
     table = [faker.name() for _ in range(3)]
 
     tpl.render({"TABLE": table, "VAR1": 1, "VAR2": 1})
-    xml = docx.save_and_get_xml(tpl, paths.out)
+    xml = docx.get_rendered_xml(tpl, paths.out)
 
     assert r"{% for row in TABLE%}" in xml
     assert r"{{row}}" in xml
@@ -84,7 +84,7 @@ def test_table_for_block_is_rendered_when_all_vars_exist(paths):
     table = [faker.name() for _ in range(3)]
 
     tpl.render({"TABLE": table, "VAR1": 1, "VAR2": 1, "VAR3": ""})
-    xml = docx.save_and_get_xml(tpl, paths.out)
+    xml = docx.get_rendered_xml(tpl, paths.out)
 
     assert all(row in xml for row in table)
     assert "COND1" in xml
@@ -105,7 +105,7 @@ def test_simple_variables_outside_blocks_follow_normal_rules(paths):
     tpl.render({})
     tpl.render({"FREE": value})
 
-    xml = docx.save_and_get_xml(tpl, paths.out)
+    xml = docx.get_rendered_xml(tpl, paths.out)
 
     assert value in xml
     assert r"{{VAR}}" in xml

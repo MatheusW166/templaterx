@@ -28,9 +28,11 @@ class DocxComponents():
 
     def _get_structures(self, component: KEYS, relKey: Optional[str] = None) -> list[Structure]:
         structures = getattr(self, component)
-        if isinstance(structures, dict):
-            structures = structures.get(relKey, [])
-        return structures
+        if not isinstance(structures, dict):
+            return structures
+        if relKey is None:
+            return [item for v in structures.values() for item in v]
+        return structures[relKey]
 
     def to_clob(self, component: KEYS, relKey: Optional[str] = None):
         structures = self._get_structures(component, relKey)

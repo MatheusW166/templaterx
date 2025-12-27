@@ -1,20 +1,18 @@
-from docx import Document
 from pathlib import Path
 from src.templaterx import TemplaterX
-from lxml import etree as ET  # type: ignore
+import re
 
 
-def extract_text(docx_path: str) -> str:
-    doc = Document(docx_path)
-    return "\n".join(p.text for p in doc.paragraphs)
-
-
-def save_and_get_text(tplx: TemplaterX, tmp_path: Path) -> str:
+def get_rendered_xml(tplx: TemplaterX, tmp_path: Path) -> str:
     tplx.save(tmp_path)
-    return extract_text(str(tmp_path))
+    del tplx
 
+    cmp = TemplaterX(tmp_path).components
 
-def save_and_get_xml(tplx: TemplaterX, tmp_path: Path) -> str:
-    tplx.save(tmp_path)
-    doc = Document(str(tmp_path))
-    return ET.tostring(doc._element.body, encoding="unicode", pretty_print=False)
+    all_public_properties_xml = "\n".join([
+        cmp.to_clob(p)  # type: ignore
+        for p in cmp.__dict__.keys()
+        if not re.match(r"_.*", p)
+    ])
+
+    return all_public_properties_xml
