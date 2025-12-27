@@ -24,20 +24,20 @@ class TemplaterX():
         return self._docx_components
 
     def _render_relitem(self, component: REL_ITEMS, context: CONTEXT):
-        part = self._docx_components[component]
+        part = self.components[component]
         for relId in part:
             part[relId] = self._render_context(part[relId], context)
 
     def _render_footnotes(self, context: CONTEXT):
-        footnotes = self._docx_components.footnotes
-        self._docx_components.footnotes = self._render_context(
+        footnotes = self.components.footnotes
+        self.components.footnotes = self._render_context(
             footnotes,
             context
         )
 
     def _render_body(self, context: CONTEXT):
-        body = self._docx_components.body
-        self._docx_components.body = self._render_context(body, context)
+        body = self.components.body
+        self.components.body = self._render_context(body, context)
 
     def _is_all_vars_in_context(self, template: str, context: CONTEXT):
         vars_from_template = jinja.extract_jinja_vars_from_xml(template)
@@ -80,22 +80,22 @@ class TemplaterX():
         # Replacing original document
 
         tree = self._docx_template.fix_tables(
-            self._docx_components.to_clob("body")
+            self.components.to_clob("body")
         )
         self._docx_template.fix_docpr_ids(tree)
         self._docx_template.map_tree(tree)
 
-        for relKey in self._docx_components.headers:
-            xml = self._docx_components.to_clob("headers", relKey)
+        for relKey in self.components.headers:
+            xml = self.components.to_clob("headers", relKey)
             self._docx_template.map_headers_footers_xml(relKey, xml)
 
-        for relKey in self._docx_components.footers:
-            xml = self._docx_components.to_clob("footers", relKey)
+        for relKey in self.components.footers:
+            xml = self.components.to_clob("footers", relKey)
             self._docx_template.map_headers_footers_xml(relKey, xml)
 
         docxtpl.set_footnotes(
             self._docx_template,
-            self._docx_components.to_clob("footnotes")
+            self.components.to_clob("footnotes")
         )
 
         return self._docx_template.save(filename, *args, **kwargs)
