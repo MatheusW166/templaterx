@@ -19,6 +19,10 @@ class TemplaterX():
             self._docx_template
         ).build()
 
+    @property
+    def components(self):
+        return self._docx_components
+
     def _render_relitem(self, component: REL_ITEMS, context: CONTEXT):
         part = self._docx_components[component]
         for relId in part:
