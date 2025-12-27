@@ -20,8 +20,7 @@ class DocxComponents():
     headers: dict[str, list[Structure]] = field(default_factory=dict)
     footers: dict[str, list[Structure]] = field(default_factory=dict)
 
-    _control_blocks_adjacency: dict[str,
-                                    set[str]] = field(default_factory=dict)
+    _blocks_adjacency: dict[str, set[str]] = field(default_factory=dict)
     _template_vars: set[str] = field(default_factory=set)
 
     def __getitem__(self, component: REL_ITEMS) -> dict[str, list[Structure]]:
@@ -42,7 +41,7 @@ class DocxComponents():
         return all([s.is_rendered for s in structures])
 
     def get_connected_vars(self, var: str) -> set[str]:
-        return collect_control_blocks_connected_vars(var, self._control_blocks_adjacency)
+        return collect_control_blocks_connected_vars(var, self._blocks_adjacency)
 
     def get_all_vars(self) -> set[str]:
         return {*self._template_vars}
@@ -64,7 +63,7 @@ class DocxComponentsBuilder:
     def __init__(self, docx_template: DocxTemplate):
         self._components = DocxComponents()
         self._docx_template = docx_template
-        self._control_blocks_adjacency: dict[str, set[str]] = {}
+        self._blocks_adjacency: dict[str, set[str]] = {}
         self._template_vars: set[str] = set()
 
     @property
@@ -79,11 +78,11 @@ class DocxComponentsBuilder:
         self._build_footnotes()
         self._builder_headers_and_footers()
         self._components._template_vars = self._template_vars
-        self._components._control_blocks_adjacency = self._control_blocks_adjacency
+        self._components._blocks_adjacency = self._blocks_adjacency
         return self._components
 
     def _add_in_adjacency_map(self, structures: list[Structure]):
-        map = self._control_blocks_adjacency
+        map = self._blocks_adjacency
         control_blocks_var_adjacency_map(structures, map)
 
     def _add_in_template_vars(self, structures: list[Structure]):
