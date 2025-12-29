@@ -1,24 +1,16 @@
 [project]
 name = "templaterx"
 version = "0.1.0"
-description = ""
-authors = [
-    { name = "Matheus Wagner", email = "matheuswagnerdossantos@outlook.com" },
-]
+description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.14"
 dependencies = [
-    "docxtpl (==0.20.1)",
+    "docxtpl>=0.20.2",
 ]
-
-
-[build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
 
 [dependency-groups]
 dev = [
-    "setuptools (>=80.9.0,<81.0.0)",
-    "pytest (>=9.0.2,<10.0.0)",
-    "faker (>=39.0.0,<40.0.0)",
+    "faker>=40.1.0",
+    "pytest>=9.0.2",
+    "setuptools>=80.9.0,<81.0.0",
 ]
