@@ -45,33 +45,33 @@ def test_handles_cycles_without_infinite_loop():
 
 def test_shared_variable_connects_multiple_control_blocks():
     graph = {
-        "LISTA": {"VAR1"},
-        "LISTA2": {"VAR1"},
-        "VAR1": {"LISTA", "LISTA2"},
+        "LIST": {"VAR1"},
+        "LIST2": {"VAR1"},
+        "VAR1": {"LIST", "LIST2"},
     }
 
-    result = collect_control_blocks_connected_vars("LISTA", graph)
+    result = collect_control_blocks_connected_vars("LIST", graph)
 
-    assert result == {"LISTA", "LISTA2", "VAR1"}
+    assert result == {"LIST", "LIST2", "VAR1"}
 
 
 def test_realistic_template_control_block_dependencies():
     graph = {
-        "LISTA2": {"VARIAVEL", "VAR1"},
-        "VARIAVEL": {"LISTA2"},
-        "VAR1": {"LISTA2", "LISTA", "VAR2", "VAR3"},
-        "LISTA": {"VAR1", "VAR2", "VAR3"},
+        "LIST2": {"VAR", "VAR1"},
+        "VAR": {"LIST2"},
+        "VAR1": {"LIST2", "LIST", "VAR2", "VAR3"},
+        "LIST": {"VAR1", "VAR2", "VAR3"},
         "VAR2": {"VAR1", "VAR3"},
         "VAR3": {"VAR1"},
     }
 
-    result = collect_control_blocks_connected_vars("LISTA2", graph)
+    result = collect_control_blocks_connected_vars("LIST2", graph)
 
     assert result == {
-        "LISTA2",
-        "VARIAVEL",
+        "LIST2",
+        "VAR",
         "VAR1",
-        "LISTA",
+        "LIST",
         "VAR2",
         "VAR3",
     }
