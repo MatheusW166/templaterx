@@ -1,12 +1,12 @@
 from dataclasses import dataclass, field
-from typing import Literal, Optional
+from typing import Literal, Optional, TypeAlias
 from docxtpl import DocxTemplate
 from .helpers import docxtpl
 from .structures import *
 
-REL_ITEMS = Literal["headers", "footers"]
-CORE_ITEMS = Literal["body", "footnotes"]
-KEYS = CORE_ITEMS | REL_ITEMS
+RelItems: TypeAlias = Literal["headers", "footers"]
+CoreItems: TypeAlias = Literal["body", "footnotes"]
+ComponentKey: TypeAlias = CoreItems | RelItems
 
 
 @dataclass
@@ -23,10 +23,10 @@ class DocxComponents():
     _blocks_adjacency: dict[str, set[str]] = field(default_factory=dict)
     _template_vars: set[str] = field(default_factory=set)
 
-    def __getitem__(self, component: REL_ITEMS) -> dict[str, list[Structure]]:
+    def __getitem__(self, component: RelItems) -> dict[str, list[Structure]]:
         return getattr(self, component)
 
-    def _get_structures(self, component: KEYS, relKey: Optional[str] = None) -> list[Structure]:
+    def _get_structures(self, component: ComponentKey, relKey: Optional[str] = None) -> list[Structure]:
         structures = getattr(self, component)
         if not isinstance(structures, dict):
             return structures
@@ -34,11 +34,11 @@ class DocxComponents():
             return [item for v in structures.values() for item in v]
         return structures[relKey]
 
-    def to_clob(self, component: KEYS, relKey: Optional[str] = None):
+    def to_clob(self, component: ComponentKey, relKey: Optional[str] = None):
         structures = self._get_structures(component, relKey)
         return "".join([s.clob for s in structures])
 
-    def is_component_rendered(self, component: KEYS, relKey: Optional[str] = None):
+    def is_component_rendered(self, component: ComponentKey, relKey: Optional[str] = None):
         structures = self._get_structures(component, relKey)
         return all([s.is_rendered for s in structures])
 

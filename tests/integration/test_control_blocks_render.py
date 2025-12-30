@@ -1,5 +1,5 @@
 import pytest
-from src.templaterx import TemplaterX
+from src.templaterx import TemplaterX, Context
 from tests.helpers import docx, paths as p
 from tests.helpers.faker import faker_pt_BR as faker
 from tests.constants import TEMPLATES_DIR
@@ -15,9 +15,8 @@ def paths(tmp_path):
 
 def test_p_for_block_is_kept_when_iterable_is_missing(paths):
     tpl = TemplaterX(paths.template)
-    context = {"VAR": faker.word(), "VAR1": faker.random_int()}
 
-    tpl.render(context)
+    tpl.render({"VAR": faker.word(), "VAR1": faker.random_int()})
     xml = docx.get_rendered_xml(tpl, paths.out)
 
     assert r"{% for p in PARAGRAPH%}" in xml
