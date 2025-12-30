@@ -1,9 +1,9 @@
-import structures as st
 from dataclasses import dataclass, field
 from typing import Literal, Optional, TypeAlias
 from docxtpl import DocxTemplate
 from .helpers import docxtpl
 from .structures import Structure
+from . import structures as st
 
 RelItems: TypeAlias = Literal["headers", "footers"]
 CoreItems: TypeAlias = Literal["body", "footnotes"]
