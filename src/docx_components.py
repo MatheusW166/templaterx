@@ -1,8 +1,9 @@
+import structures as st
 from dataclasses import dataclass, field
 from typing import Literal, Optional, TypeAlias
 from docxtpl import DocxTemplate
 from .helpers import docxtpl
-from .structures import *
+from .structures import Structure
 
 RelItems: TypeAlias = Literal["headers", "footers"]
 CoreItems: TypeAlias = Literal["body", "footnotes"]
@@ -35,15 +36,13 @@ class DocxComponents():
         return structures[relKey]
 
     def to_clob(self, component: ComponentKey, relKey: Optional[str] = None):
-        structures = self._get_structures(component, relKey)
-        return "".join([s.clob for s in structures])
+        return "".join([s.clob for s in self._get_structures(component, relKey)])
 
     def is_component_rendered(self, component: ComponentKey, relKey: Optional[str] = None):
-        structures = self._get_structures(component, relKey)
-        return all([s.is_rendered for s in structures])
+        return all([s.is_rendered for s in self._get_structures(component, relKey)])
 
     def get_connected_vars(self, var: str) -> set[str]:
-        return collect_control_blocks_connected_vars(var, self._blocks_adjacency)
+        return st.collect_control_blocks_connected_vars(var, self._blocks_adjacency)
 
     def get_all_vars(self) -> set[str]:
         return {*self._template_vars}
@@ -68,13 +67,6 @@ class DocxComponentsBuilder:
         self._blocks_adjacency: dict[str, set[str]] = {}
         self._template_vars: set[str] = set()
 
-    @property
-    def docx(self):
-        docx = self._docx_template.docx
-        if not docx:
-            raise ValueError()
-        return docx
-
     def build(self) -> DocxComponents:
         self._build_body()
         self._build_footnotes()
@@ -84,16 +76,16 @@ class DocxComponentsBuilder:
         return self._components
 
     def _add_in_adjacency_map(self, structures: list[Structure]):
-        map = self._blocks_adjacency
-        control_blocks_var_adjacency_map(structures, map)
+        adj_map = self._blocks_adjacency
+        st.control_blocks_var_adjacency_map(structures, prev=adj_map)
 
     def _add_in_template_vars(self, structures: list[Structure]):
-        for vars in extract_vars_from_structures(structures):
+        for vars in st.extract_vars_from_structures(structures):
             self._template_vars |= vars
 
     def _pre_process_xml(self, xml: str) -> list[Structure]:
         patched_xml = self._docx_template.patch_xml(xml)
-        structures = extract_jinja_structures_from_xml(patched_xml)
+        structures = st.extract_jinja_structures_from_xml(patched_xml)
         self._add_in_adjacency_map(structures)
         self._add_in_template_vars(structures)
         return structures
