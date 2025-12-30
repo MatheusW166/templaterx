@@ -4,10 +4,6 @@
 
 Unlike traditional template rendering engines that require the full context upfront, TemplaterX allows you to **render documents progressively**, applying partial contexts over multiple render calls while preserving unresolved placeholders and control blocks.
 
-This approach significantly reduces memory usage and enables streaming or staged data processing.
-
----
-
 ## Key Concept
 
 > **Render documents incrementally, only when data is available.**
@@ -16,8 +12,6 @@ TemplaterX maintains an internal template state and allows the `render()` method
 Each call applies only the data that can be safely rendered at that moment.
 
 Unresolved placeholders and control blocks remain intact until all required variables are present.
-
----
 
 ## Features
 
@@ -37,15 +31,11 @@ Unresolved placeholders and control blocks remain intact until all required vari
   - Uses standard docxtpl syntax.
   - Fully compatible with existing `.docx` templates.
 
----
-
 ## Installation
 
 ```bash
 pip install templaterx
 ```
-
----
 
 ## Basic Usage
 
@@ -61,15 +51,11 @@ tpl.render({"salary": 10000})
 tpl.save("output.docx")
 ```
 
----
-
 ## ⚠️ Control Block Rule
 
 A control block is rendered only if all variables used inside it are present in the context. 
 
 If any required variable is missing, placeholders remain unchanged.
-
----
 
 ## Use Cases
 
