@@ -1,8 +1,8 @@
 import pytest
 from src.templaterx import TemplaterX
-from tests.helpers import docx, paths as p
-from tests.helpers.faker import faker_pt_BR as faker
-from tests.constants import TEMPLATES_DIR
+from .constants import TEMPLATES_DIR
+from ..helpers import docx, paths as p
+from ..helpers.faker import faker_pt_BR as faker
 
 
 @pytest.fixture
