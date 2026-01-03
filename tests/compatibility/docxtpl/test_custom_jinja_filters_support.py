@@ -40,5 +40,5 @@ def test_custom_jinja_filters_must_work_properly(paths):
 
     xml = docx.get_rendered_xml(tplx, paths.out)
 
-    assert "Hello, Deric" in xml
+    assert "Hello, Deric and John Doe" in xml
     assert "3.5" in xml
