@@ -5,9 +5,8 @@ import re
 
 def get_rendered_xml(tplx: TemplaterX, tmp_path: Path) -> str:
     tplx.save(tmp_path)
-    del tplx
 
-    cmp = TemplaterX(tmp_path).components
+    cmp = TemplaterX(tmp_path, tplx._jinja_env).components
 
     all_public_properties_xml = "\n".join([
         cmp.to_clob(p)  # type: ignore

@@ -13,7 +13,7 @@ def paths(tmp_path):
     )
 
 
-def test_cellbg_support(paths):
+def test_cells_and_texts_are_filled_with_its_defined_colors(paths):
     tplx = TemplaterX(paths.template)
 
     context = {
