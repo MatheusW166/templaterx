@@ -12,12 +12,12 @@ TemplateFile: TypeAlias = IO[bytes] | str | PathLike
 
 class TemplaterX():
     def __init__(self, template_file: TemplateFile, jinja_env: Optional[Environment] = None) -> None:
-        self._jinja_env = jinja.get_keep_placeholders_environment(jinja_env)
-        self._docx_template = DocxTemplate(template_file)
-        self._docx_template.render_init()
-        self._docx_components = DocxComponentsBuilder(
-            self._docx_template
-        ).build()
+        tpl = DocxTemplate(template_file)
+        tpl.render_init()
+        jja_custom = jinja.get_keep_placeholders_environment(jinja_env)
+        self._docx_components = DocxComponentsBuilder(tpl, jja_custom).build()
+        self._jinja_env = jja_custom
+        self._docx_template = tpl
 
     @property
     def components(self):

@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Literal, Optional, TypeAlias
 from docxtpl import DocxTemplate
+from jinja2 import Environment
 from .helpers import docxtpl
 from .structures import Structure
 from . import structures as st
@@ -61,7 +62,8 @@ class DocxComponentsBuilder:
     - creating a list of all template variables
     """
 
-    def __init__(self, docx_template: DocxTemplate):
+    def __init__(self, docx_template: DocxTemplate, jinja_env: Optional[Environment] = None):
+        self._jinja_env = jinja_env
         self._components = DocxComponents()
         self._docx_template = docx_template
         self._blocks_adjacency: dict[str, set[str]] = {}
@@ -80,7 +82,7 @@ class DocxComponentsBuilder:
         st.control_blocks_var_adjacency_map(structures, prev=adj_map)
 
     def _add_in_template_vars(self, structures: list[Structure]):
-        for vars in st.extract_vars_from_structures(structures):
+        for vars in st.extract_vars_from_structures(structures, self._jinja_env):
             self._template_vars |= vars
 
     def _pre_process_xml(self, xml: str) -> list[Structure]:

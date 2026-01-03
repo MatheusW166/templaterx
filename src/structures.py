@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from typing import cast
+from typing import cast, Optional
+from jinja2 import Environment
 from .helpers import jinja
 import re
 
@@ -23,9 +24,9 @@ class Structure():
         return self.clob
 
 
-def extract_vars_from_structures(structures: list[Structure]):
+def extract_vars_from_structures(structures: list[Structure], jinja_env: Optional[Environment] = None):
     for s in structures:
-        yield jinja.extract_jinja_vars_from_xml(s.clob)
+        yield jinja.extract_jinja_vars_from_xml(s.clob, jinja_env)
 
 
 def control_blocks_var_adjacency_map(structures: list[Structure], prev: dict[str, set[str]]) -> dict[str, set[str]]:
