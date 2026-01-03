@@ -15,10 +15,10 @@ class KeepPlaceholderUndefined(Undefined):
         return KeepPlaceholderUndefined(name=f"{self._expr} | {filter_expr}")
 
     def __getattr__(self, name):
-        return f"{{{{ {self._undefined_name}.{name} }}}}"
+        return f"{{{{ {self._expr}.{name} }}}}"
 
     def __getitem__(self, key):
-        return f"{{{{ {self._undefined_name}['{key}'] }}}}"
+        return f"{{{{ {self._expr}['{key}'] }}}}"
 
 
 def apply_preserve_placeholder_to_all_filters(env: Environment):
@@ -38,7 +38,7 @@ def apply_preserve_placeholder_to_all_filters(env: Environment):
         def make_wrapper(f, filter_name):
             @wraps(f)
             def wrapper(value, *args, **kwargs):
-                if isinstance(value, Undefined):
+                if isinstance(value, KeepPlaceholderUndefined):
                     if hasattr(value, "with_filter"):
                         args_repr = ", ".join(repr(a) for a in args)
                         kwargs_repr = ", ".join(
@@ -59,7 +59,7 @@ def apply_preserve_placeholder_to_all_filters(env: Environment):
 
                 return f(value, *args, **kwargs)
 
-            wrapper._preserve_placeholder_wrapped = True  # type: ignore
+            setattr(wrapper, "_preserve_placeholder_wrapped", True)
             return wrapper
 
         env.filters[name] = make_wrapper(func, name)
