@@ -11,14 +11,18 @@ class KeepPlaceholderUndefined(Undefined):
     def __str__(self):
         return f"{{{{ {self._expr} }}}}"
 
-    def with_filter(self, filter_expr: str):
-        return KeepPlaceholderUndefined(name=f"{self._expr} | {filter_expr}")
-
     def __getattr__(self, name):
-        return f"{{{{ {self._expr}.{name} }}}}"
+        expr = f"({self._expr})" if "|" in str(self._expr) else self._expr
+        placeholder = f"{expr}.{name}"
+        return KeepPlaceholderUndefined(name=placeholder)
 
     def __getitem__(self, key):
-        return f"{{{{ {self._expr}['{key}'] }}}}"
+        expr = f"({self._expr})" if "|" in str(self._expr) else self._expr
+        placeholder = f"{expr}['{key}']"
+        return KeepPlaceholderUndefined(name=placeholder)
+
+    def with_filter(self, filter_expr: str):
+        return KeepPlaceholderUndefined(name=f"{self._expr} | {filter_expr}")
 
 
 def apply_preserve_placeholder_to_all_filters(env: Environment):
@@ -36,28 +40,29 @@ def apply_preserve_placeholder_to_all_filters(env: Environment):
             continue
 
         def make_wrapper(f, filter_name):
+
             @wraps(f)
             def wrapper(value, *args, **kwargs):
+                if not isinstance(value, Undefined):
+                    return f(value, *args, **kwargs)
+
                 if isinstance(value, KeepPlaceholderUndefined):
-                    if hasattr(value, "with_filter"):
-                        args_repr = ", ".join(repr(a) for a in args)
-                        kwargs_repr = ", ".join(
-                            f"{k}={repr(v)}" for k, v in kwargs.items()
-                        )
+                    args_repr = ", ".join(repr(a) for a in args)
+                    kwargs_repr = ", ".join(
+                        f"{k}={repr(v)}" for k, v in kwargs.items()
+                    )
 
-                        params = ", ".join(
-                            p for p in (args_repr, kwargs_repr) if p
-                        )
+                    params = ", ".join(
+                        p for p in (args_repr, kwargs_repr) if p
+                    )
 
-                        filter_expr = (
-                            f"{filter_name}({params})" if params else filter_name
-                        )
+                    filter_expr = (
+                        f"{filter_name}({params})" if params else filter_name
+                    )
 
-                        return value.with_filter(filter_expr)
+                    return value.with_filter(filter_expr)
 
-                    return value
-
-                return f(value, *args, **kwargs)
+                return value
 
             setattr(wrapper, "_preserve_placeholder_wrapped", True)
             return wrapper
