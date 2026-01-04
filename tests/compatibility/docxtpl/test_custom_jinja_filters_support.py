@@ -92,6 +92,11 @@ def test_incremental_rendering_must_work_with_filters(paths, jinja_env):
 
 
 def test_custom_filters_must_return_objects_properly(paths, jinja_env):
+    """
+    This kind of syntax must work properly:
+
+    {{ (people | first_row).name | trim }}
+    """
 
     @dataclass
     class Person:
@@ -103,9 +108,15 @@ def test_custom_filters_must_return_objects_properly(paths, jinja_env):
     ]
 
     tplx = TemplaterX(paths.template, jinja_env=jinja_env)
-    tplx.render({"people": people})
-
-    first_person = people[0]
+    tplx.render({})
     xml = docx.get_rendered_xml(tplx, paths.out)
 
-    assert first_person.name in xml
+    # Undefined context must have its placeholders preserved
+    assert r"First person: {{ (people | first_row).name | trim }}" in xml
+
+    # We must be able to render the context later
+    tplx.render({"people": people})
+    xml = docx.get_rendered_xml(tplx, paths.out)
+
+    first_person = people[0]
+    assert f"First person: {first_person.name}" in xml
