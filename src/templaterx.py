@@ -5,6 +5,7 @@ from .helpers import docxtpl, jinja
 from .structures import *
 from .docx_components import *
 from jinja2 import Environment
+from pathlib import Path
 
 Context: TypeAlias = Mapping[str, Any]
 TemplateFile: TypeAlias = IO[bytes] | str | PathLike
@@ -23,28 +24,33 @@ class TemplaterX():
         self._docx_template = tpl
 
     @property
-    def docxtpl(self):
-        return self._docx_template
-
-    @property
     def components(self):
         return self._docx_components
 
+    def replace_embedded(self, src: Path, dst: Path):
+        return self._docx_template.replace_embedded(src, dst)
+
+    def replace_zipname(self, zipname: str, dst: Path):
+        return self._docx_template.replace_zipname(zipname, dst)
+
+    def get_undeclared_template_variables(self, jinja_env: Optional[Environment] = None, context: dict[str, Any] | None = None):
+        return self._docx_template.get_undeclared_template_variables(jinja_env, context)
+
     def _render_relitem(self, component: RelItems, context: Context):
-        part = self.components[component]
+        part = self._docx_components[component]
         for relId in part:
             part[relId] = self._render_context(part[relId], context)
 
     def _render_footnotes(self, context: Context):
-        footnotes = self.components.footnotes
-        self.components.footnotes = self._render_context(
+        footnotes = self._docx_components.footnotes
+        self._docx_components.footnotes = self._render_context(
             footnotes,
             context
         )
 
     def _render_body(self, context: Context):
-        body = self.components.body
-        self.components.body = self._render_context(body, context)
+        body = self._docx_components.body
+        self._docx_components.body = self._render_context(body, context)
 
     def _is_all_vars_in_context(self, template: str, context: Context):
         vars_from_template = jinja.extract_jinja_vars_from_xml(template)
@@ -87,22 +93,22 @@ class TemplaterX():
         # Replacing original document
 
         tree = self._docx_template.fix_tables(
-            self.components.to_clob("body")
+            self._docx_components.to_clob("body")
         )
         self._docx_template.fix_docpr_ids(tree)
         self._docx_template.map_tree(tree)
 
-        for relKey in self.components.headers:
-            xml = self.components.to_clob("headers", relKey)
+        for relKey in self._docx_components.headers:
+            xml = self._docx_components.to_clob("headers", relKey)
             self._docx_template.map_headers_footers_xml(relKey, xml)
 
-        for relKey in self.components.footers:
-            xml = self.components.to_clob("footers", relKey)
+        for relKey in self._docx_components.footers:
+            xml = self._docx_components.to_clob("footers", relKey)
             self._docx_template.map_headers_footers_xml(relKey, xml)
 
         docxtpl.set_footnotes(
             self._docx_template,
-            self.components.to_clob("footnotes")
+            self._docx_components.to_clob("footnotes")
         )
 
         return self._docx_template.save(filename, *args, **kwargs)

@@ -51,20 +51,20 @@ def build_dynamic_embedded_docx(paths):
 def build_main_document(paths, embedded_docx):
     tplx = TemplaterX(paths["embedded_main_tpl.docx"].template)
 
-    tplx.docxtpl.replace_embedded(
+    tplx.replace_embedded(
         paths["embedded_dummy.docx"].template,
         paths["embedded_static_docx.docx"].template,
     )
-    tplx.docxtpl.replace_embedded(
+    tplx.replace_embedded(
         paths["embedded_dummy2.docx"].template,
         embedded_docx,
     )
 
-    tplx.docxtpl.replace_zipname(
+    tplx.replace_zipname(
         EMBEDDED_EXCEL,
         paths["real_Excel.xlsx"].template,
     )
-    tplx.docxtpl.replace_zipname(
+    tplx.replace_zipname(
         EMBEDDED_PPT,
         paths["real_PowerPoint.pptx"].template,
     )
