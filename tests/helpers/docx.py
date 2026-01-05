@@ -15,3 +15,8 @@ def get_rendered_xml(tplx: TemplaterX, tmp_path: Path) -> str:
     ])
 
     return all_public_properties_xml
+
+
+def generate_xml_file(tplx: TemplaterX, tmp_path: Path):
+    with open("content.xml", "w") as f:
+        f.write(get_rendered_xml(tplx, tmp_path))
