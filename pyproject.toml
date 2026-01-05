@@ -4,13 +4,7 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.14"
-dependencies = [
-    "docxtpl>=0.20.2",
-]
+dependencies = ["docxtpl>=0.20.2,<0.21"]
 
 [dependency-groups]
-dev = [
-    "faker>=40.1.0",
-    "pytest>=9.0.2",
-    "setuptools>=80.9.0,<81.0.0",
-]
+dev = ["faker>=40.1.0", "pytest>=9.0.2", "setuptools>=80.9.0,<81.0.0"]
