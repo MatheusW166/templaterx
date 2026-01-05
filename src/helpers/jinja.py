@@ -31,7 +31,11 @@ def apply_preserve_placeholder_to_all_filters(env: Environment):
     to all filters registered in the environment.
     """
 
+    EXCLUDED_JINJA_FILTERS = {"default"}
+
     for name, func in list(env.filters.items()):
+        if name in EXCLUDED_JINJA_FILTERS:
+            continue
 
         if not callable(func):
             continue
