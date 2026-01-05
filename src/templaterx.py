@@ -20,6 +20,10 @@ class TemplaterX():
         self._docx_template = tpl
 
     @property
+    def docxtpl(self):
+        return self._docx_template
+
+    @property
     def components(self):
         return self._docx_components
 

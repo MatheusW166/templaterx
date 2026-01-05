@@ -1,5 +1,6 @@
 from pathlib import Path
 from src.templaterx import TemplaterX
+import zipfile
 import re
 
 
@@ -20,3 +21,27 @@ def get_rendered_xml(tplx: TemplaterX, tmp_path: Path) -> str:
 def generate_xml_file(tplx: TemplaterX, tmp_path: Path):
     with open("content.xml", "w") as f:
         f.write(get_rendered_xml(tplx, tmp_path))
+
+
+def read_embedded_bytes(docx_path: Path, embedded_name: str):
+    with zipfile.ZipFile(docx_path) as z:
+        return z.read(embedded_name)
+
+
+def extract_all_embedded_docx_files(docx_path: Path, tmp_path: Path) -> list[Path]:
+    """
+    Extracts embedded OLE objects that are DOCX files and returns paths to them.
+    """
+    extracted = []
+
+    with zipfile.ZipFile(docx_path) as z:
+        for name in z.namelist():
+            if name.endswith(".docx"):
+                data = z.read(name)
+
+                if data.startswith(b"PK"):
+                    out = tmp_path / Path(name).name.replace(".bin", ".docx")
+                    out.write_bytes(data)
+                    extracted.append(out)
+
+    return extracted
