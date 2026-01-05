@@ -2,7 +2,6 @@ from src.templaterx import TemplaterX
 from tests.helpers import paths as p, docx, faker, template
 from .constants import TEMPLATES_DIR
 import pytest
-import re
 
 
 @pytest.fixture
