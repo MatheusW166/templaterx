@@ -8,8 +8,14 @@ class KeepPlaceholderUndefined(Undefined):
         super().__init__(*args, **kwargs)
         self._expr = name or self._undefined_name
 
-    def __str__(self):
+    def _render(self):
         return f"{{{{ {self._expr} }}}}"
+
+    def __html__(self):
+        return self._render()
+
+    def __str__(self):
+        return self._render()
 
     def __getattr__(self, name):
         expr = f"({self._expr})" if "|" in str(self._expr) else self._expr
@@ -74,9 +80,10 @@ def apply_preserve_placeholder_to_all_filters(env: Environment):
         env.filters[name] = make_wrapper(func, name)
 
 
-def get_keep_placeholders_environment(jinja_env: Optional[Environment] = None):
+def get_keep_placeholders_environment(jinja_env: Optional[Environment] = None, autoescape=False):
     env = jinja_env or Environment()
     env.undefined = KeepPlaceholderUndefined
+    env.autoescape = autoescape
     apply_preserve_placeholder_to_all_filters(env)
     return env
 
