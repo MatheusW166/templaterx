@@ -45,6 +45,7 @@ def test_cells_and_texts_are_filled_with_its_defined_colors(paths):
         ],
     }
 
+    tplx.render({})
     tplx.render(context)
 
     xml = docx.get_rendered_xml(tplx, paths.out)
