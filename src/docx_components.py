@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
-from typing import Literal, Optional, TypeAlias
+from typing import Literal, Optional, TypeAlias, cast, overload
 from docxtpl import DocxTemplate
+from docx.opc.part import Part
 from jinja2 import Environment
 from .helpers import docxtpl
 from .structures import Structure
@@ -25,6 +26,10 @@ class DocxComponents():
     _blocks_adjacency: dict[str, set[str]] = field(default_factory=dict)
     _template_vars: set[str] = field(default_factory=set)
 
+    _parts: dict[ComponentKey, Part | dict[str, Part]] = field(
+        default_factory=dict
+    )
+
     def __getitem__(self, component: RelItems) -> dict[str, list[Structure]]:
         return getattr(self, component)
 
@@ -35,6 +40,40 @@ class DocxComponents():
         if relKey is None:
             return [item for v in structures.values() for item in v]
         return structures[relKey]
+
+    @overload
+    def set_part(self, part: Part, component: CoreItems) -> None: ...
+
+    @overload
+    def set_part(
+        self,
+        part: Part,
+        component: RelItems,
+        relKey: str
+    ) -> None: ...
+
+    def set_part(self, part: Part, component: CoreItems | RelItems, relKey: str | None = None):
+        if relKey is None:
+            self._parts[component] = part
+            return
+        self._parts[component] = self._parts.get(component, dict())
+        cast(dict, self._parts[component])[relKey] = part
+
+    @overload
+    def get_part(self, component: CoreItems) -> Part | None: ...
+
+    @overload
+    def get_part(self, component: RelItems, relKey: str) -> Part | None: ...
+
+    def get_part(self, component: CoreItems | RelItems, relKey: str | None = None) -> Part | None:
+        part = self._parts.get(component)
+        if not part:
+            return None
+        if not isinstance(part, dict):
+            return part
+        if not relKey:
+            raise ValueError("'relKey' cannot be None")
+        return part[relKey]
 
     def to_clob(self, component: ComponentKey, relKey: Optional[str] = None):
         return "".join([s.clob for s in self._get_structures(component, relKey)])
@@ -69,6 +108,13 @@ class DocxComponentsBuilder:
         self._blocks_adjacency: dict[str, set[str]] = {}
         self._template_vars: set[str] = set()
 
+    @property
+    def _docx(self):
+        docx = self._docx_template.docx
+        if not docx:
+            raise ValueError("'docx' is None")
+        return docx
+
     def build(self) -> DocxComponents:
         self._build_body()
         self._build_footnotes()
@@ -95,6 +141,7 @@ class DocxComponentsBuilder:
     def _build_body(self):
         xml = self._docx_template.get_xml()
         self._components.body = self._pre_process_xml(xml)
+        self._components.set_part(self._docx._part, "body")
 
     def _build_footnotes(self):
         part = docxtpl.get_footnotes(self._docx_template)
@@ -104,6 +151,7 @@ class DocxComponentsBuilder:
 
         xml = part.blob.decode("utf-8")
         self._components.footnotes = self._pre_process_xml(xml)
+        self._components.set_part(part, "footnotes")
 
     def _builder_headers_and_footers(self):
         self._build_relitem(self._docx_template.HEADER_URI)
@@ -113,9 +161,8 @@ class DocxComponentsBuilder:
         component = "headers" if "/header" in uri else "footers"
 
         for relKey, part in self._docx_template.get_headers_footers(uri):
-
             structures = self._pre_process_xml(
                 self._docx_template.get_part_xml(part)
             )
-
             self._components[component][relKey] = structures
+            self._components.set_part(part, component, relKey)

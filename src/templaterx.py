@@ -7,6 +7,7 @@ from .docx_components import *
 from jinja2 import Environment
 from pathlib import Path
 from docx.document import Document
+from docx.opc.part import Part
 
 
 Context: TypeAlias = Mapping[str, Any]
@@ -45,31 +46,39 @@ class TemplaterX():
         return self._docx_template.get_undeclared_template_variables(self._jinja_env, context)
 
     def _render_relitem(self, component: RelItems, context: Context):
-        part = self._docx_components[component]
-        for relId in part:
-            part[relId] = self._render_context(part[relId], context)
+        relItems = self._docx_components[component]
+        for relId in relItems:
+            part = self._docx_components.get_part(component, relKey=relId)
+            relItems[relId] = self._render_context(
+                relItems[relId],
+                context,
+                part
+            )
 
     def _render_footnotes(self, context: Context):
         footnotes = self._docx_components.footnotes
+        part = self._docx_components.get_part("footnotes")
         self._docx_components.footnotes = self._render_context(
             footnotes,
-            context
+            context,
+            part
         )
 
     def _render_body(self, context: Context):
         body = self._docx_components.body
-        self._docx_components.body = self._render_context(body, context)
+        part = self._docx_components.get_part("body")
+        self._docx_components.body = self._render_context(body, context, part)
 
     def _is_all_vars_in_context(self, template: str, context: Context):
         vars_from_template = jinja.extract_jinja_vars_from_xml(template)
         return len(vars_from_template - set(context.keys())) == 0
 
-    def _render_context(self, component_structures: list[Structure], context: Context):
+    def _render_context(self, component_structures: list[Structure], context: Context, part: Part | None):
 
         def render(structure: Structure):
             structure.clob = self._docx_template.render_xml_part(
                 structure.clob,
-                None,
+                part,
                 context,
                 self._jinja_env
             )
