@@ -38,7 +38,7 @@ class TemplaterX():
     def replace_zipname(self, zipname: str, dst: Path):
         return self._docx_template.replace_zipname(zipname=zipname, dst_file=dst)
 
-    def replace_media(self, src: Path, dst: Path):
+    def replace_media(self, src: Path | IO[bytes], dst: Path | IO[bytes]):
         return self._docx_template.replace_media(src_file=src, dst_file=dst)
 
     def get_undeclared_template_variables(self, context: Optional[dict[str, Any]] = None):
