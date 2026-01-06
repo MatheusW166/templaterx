@@ -127,8 +127,8 @@ def extract_jinja_structures_from_xml(xml: str) -> list[Structure]:
         flags=re.DOTALL
     )
 
-    # Anything like {%...%} without "end"
-    open_pattern = r"\{\%\s*(?!.*end).*?\%\}"
+    # Anything like {% (for|if)...%}
+    open_pattern = r"\{\%\s*(for|if).*?\%\}"
 
     # Anything like {% end... %}
     close_pattern = r"\{\%\s*end.*?\%\}"
@@ -186,5 +186,10 @@ def extract_jinja_structures_from_xml(xml: str) -> list[Structure]:
 
         if not close_block_expected_stack:
             finish_current_structure(is_control_block=True)
+
+    if close_block_expected_stack:
+        raise RuntimeError(
+            f"Close blocks were not found: {close_block_expected_stack}"
+        )
 
     return structures
