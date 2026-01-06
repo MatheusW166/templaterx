@@ -33,8 +33,8 @@ class TemplaterX():
     def replace_zipname(self, zipname: str, dst: Path):
         return self._docx_template.replace_zipname(zipname, dst)
 
-    def get_undeclared_template_variables(self, jinja_env: Optional[Environment] = None, context: dict[str, Any] | None = None):
-        return self._docx_template.get_undeclared_template_variables(jinja_env, context)
+    def get_undeclared_template_variables(self, context: Optional[dict[str, Any]] = None):
+        return self._docx_template.get_undeclared_template_variables(self._jinja_env, context)
 
     def _render_relitem(self, component: RelItems, context: Context):
         part = self._docx_components[component]
