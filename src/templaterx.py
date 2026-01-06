@@ -74,6 +74,7 @@ class TemplaterX():
         return len(vars_from_template - set(context.keys())) == 0
 
     def _render_context(self, component_structures: list[Structure], context: Context, part: Part | None):
+        self.current_rendering_part = part
 
         def render(structure: Structure):
             structure.clob = self._docx_template.render_xml_part(
