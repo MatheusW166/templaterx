@@ -1,11 +1,13 @@
 from docxtpl import DocxTemplate
-from typing import TypeAlias, IO, Any, Optional, Mapping
+from typing import TypeAlias, IO, Any, Optional, Mapping, cast
 from os import PathLike
 from .helpers import docxtpl, jinja
 from .structures import *
 from .docx_components import *
 from jinja2 import Environment
 from pathlib import Path
+from docx.document import Document
+
 
 Context: TypeAlias = Mapping[str, Any]
 TemplateFile: TypeAlias = IO[bytes] | str | PathLike
@@ -26,6 +28,9 @@ class TemplaterX():
     @property
     def components(self):
         return self._docx_components
+
+    def new_subdoc(self, docpath: str | IO[bytes] | None = None) -> Document:
+        return cast(Document, self._docx_template.new_subdoc(docpath))
 
     def replace_embedded(self, src: Path, dst: Path):
         return self._docx_template.replace_embedded(src, dst)
