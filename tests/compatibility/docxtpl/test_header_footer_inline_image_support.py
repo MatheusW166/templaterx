@@ -2,10 +2,7 @@ from src.templaterx import TemplaterX
 from docxtpl import InlineImage
 from docx.shared import Mm
 from .constants import TEMPLATES_DIR
-from tests.helpers import paths as p, docx, hash as hs
-from tests.helpers.faker import faker_pt_BR as faker
-from pathlib import Path
-import io
+from tests.helpers import paths as p, docx
 import pytest
 
 
