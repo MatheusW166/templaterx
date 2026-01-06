@@ -45,3 +45,17 @@ def extract_all_embedded_docx_files(docx_path: Path, tmp_path: Path) -> list[Pat
                     extracted.append(out)
 
     return extracted
+
+
+def extract_all_images(docx_path: Path, tmp_path: Path) -> list[Path]:
+    extracted: list[Path] = []
+
+    with zipfile.ZipFile(docx_path) as z:
+        for name in z.namelist():
+            if name.startswith("word/media/image"):
+                data = z.read(name)
+                out = tmp_path / Path(name).name
+                out.write_bytes(data)
+                extracted.append(out)
+
+    return extracted
