@@ -30,13 +30,16 @@ class TemplaterX():
         return self._docx_components
 
     def new_subdoc(self, docpath: str | IO[bytes] | None = None) -> Document:
-        return cast(Document, self._docx_template.new_subdoc(docpath))
+        return cast(Document, self._docx_template.new_subdoc(docpath=docpath))
 
     def replace_embedded(self, src: Path, dst: Path):
-        return self._docx_template.replace_embedded(src, dst)
+        return self._docx_template.replace_embedded(src_file=src, dst_file=dst)
 
     def replace_zipname(self, zipname: str, dst: Path):
-        return self._docx_template.replace_zipname(zipname, dst)
+        return self._docx_template.replace_zipname(zipname=zipname, dst_file=dst)
+
+    def replace_media(self, src: Path, dst: Path):
+        return self._docx_template.replace_media(src_file=src, dst_file=dst)
 
     def get_undeclared_template_variables(self, context: Optional[dict[str, Any]] = None):
         return self._docx_template.get_undeclared_template_variables(self._jinja_env, context)
