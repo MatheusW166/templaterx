@@ -60,16 +60,8 @@ def test_header_footer_inline_image_incremental_rendering_support(paths):
             InlineImage(tplx, python_image, height=Mm(10)),
         ],
     }
-    tplx.render({})
+
     tplx.render(context)
-
-    output = paths["header_footer_inline_image_tpl.docx"].out
-    xml = docx.get_rendered_xml(tplx, output)
-
-    assert "django.png" not in xml
-    assert r"{{ inline_image }}" in xml
-    assert xml.count("python.png") == 3
-
     tplx.render({
         "inline_image": InlineImage(
             tplx,
@@ -77,5 +69,32 @@ def test_header_footer_inline_image_incremental_rendering_support(paths):
             height=Mm(10)
         )
     })
+
+    output = paths["header_footer_inline_image_tpl.docx"].out
     xml = docx.get_rendered_xml(tplx, output)
+
     assert xml.count("django.png") == 1
+    assert xml.count("python.png") == 3
+
+
+def test_header_footer_inline_image_undefined_vars_must_have_placeholders_preserved(paths):
+    tplx = TemplaterX(paths["header_footer_inline_image_tpl.docx"].template)
+
+    python_image = str(paths["python.png"].template)
+
+    context = {
+        "images": [
+            InlineImage(tplx, python_image, height=Mm(10)),
+            InlineImage(tplx, python_image, height=Mm(10)),
+            InlineImage(tplx, python_image, height=Mm(10)),
+        ],
+    }
+
+    tplx.render(context)
+
+    output = paths["header_footer_inline_image_tpl.docx"].out
+    xml = docx.get_rendered_xml(tplx, output)
+
+    assert r"{{ inline_image }}" in xml
+    assert "django.png" not in xml
+    assert xml.count("python.png") == 3

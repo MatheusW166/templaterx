@@ -63,6 +63,7 @@ def test_replace_media_should_work_in_header_and_footer_with_bytes_stream(paths,
     tplx.replace_media(dummy_pic, new_image)
 
     context = {"mycompany": faker.company()}
+
     tplx.render(context)
     tplx.save(rendered_file_path.out)
 

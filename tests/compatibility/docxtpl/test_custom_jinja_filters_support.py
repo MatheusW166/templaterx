@@ -71,7 +71,28 @@ def test_custom_jinja_filters_must_work_properly_with_custom_and_native_filters(
     assert "3.5" in xml
 
 
-def test_incremental_rendering_must_work_with_filters(paths, jinja_env):
+def test_complete_context_must_be_rendered_using_custom_filters(paths, jinja_env):
+
+    tplx = TemplaterX(paths.template, jinja_env=jinja_env)
+
+    doc_no = faker.random_int()
+    context = {
+        "base_value_string": {"saudation": "Hi,"},
+        "doc_no": doc_no,
+        "base_value_float": 1.5
+    }
+
+    tplx.render(context)
+    xml = docx.get_rendered_xml(tplx, paths.out)
+
+    assert f"The string value is Hi,"
+    assert "Hi, Deric and John Doe" in xml
+    assert f"Document Number : {doc_no}" in xml
+    assert f"The float value is 1.5" in xml
+    assert "3.5" in xml
+
+
+def test_partial_context_must_render_available_data_even_using_custom_filters(paths, jinja_env):
 
     tplx = TemplaterX(paths.template, jinja_env=jinja_env)
 
@@ -95,13 +116,6 @@ def test_incremental_rendering_must_work_with_filters(paths, jinja_env):
     assert r"The float value is {{ base_value_float }}" in xml
     assert r"The filter modified float value is {{ base_value_float | sum_values_filter(2) }}" in xml
 
-    # This render should fill the remaining float data
-    tplx.render({"base_value_float": 1.5})
-    xml = docx.get_rendered_xml(tplx, paths.out)
-
-    assert f"The float value is 1.5" in xml
-    assert "3.5" in xml
-
 
 def test_custom_filters_must_return_objects_properly(fake_people_list, paths, jinja_env):
     """
@@ -111,18 +125,20 @@ def test_custom_filters_must_return_objects_properly(fake_people_list, paths, ji
     """
 
     tplx = TemplaterX(paths.template, jinja_env=jinja_env)
-    tplx.render({})
-    xml = docx.get_rendered_xml(tplx, paths.out)
-
-    # Undefined context must have its placeholders preserved
-    assert r"First person: {{ (people | first_row).name | trim }}" in xml
-
-    # We must be able to render the context later
     tplx.render({"people": fake_people_list})
+
     xml = docx.get_rendered_xml(tplx, paths.out)
 
     first_person = fake_people_list[0]
     assert f"First person: {first_person.name}" in xml
+
+
+def test_custom_filters_must_keep_placeholders_of_objects_properly_when_context_is_undefined(fake_people_list, paths, jinja_env):
+    tplx = TemplaterX(paths.template, jinja_env=jinja_env)
+    tplx.render({})
+    xml = docx.get_rendered_xml(tplx, paths.out)
+
+    assert r"First person: {{ (people | first_row).name | trim }}" in xml
 
 
 def test_edge_case_default_jinja_filter_must_replace_placeholders(fake_people_list, paths, jinja_env):
@@ -134,11 +150,8 @@ def test_edge_case_default_jinja_filter_must_replace_placeholders(fake_people_li
 
     tplx = TemplaterX(paths.template, jinja_env=jinja_env)
     tplx.render({})
+    tplx.render({"people": fake_people_list})
     xml = docx.get_rendered_xml(tplx, paths.out)
 
     default_result = r"First person default: default value"
-    assert default_result in xml
-
-    tplx.render({"people": fake_people_list})
-    xml = docx.get_rendered_xml(tplx, paths.out)
     assert default_result in xml
