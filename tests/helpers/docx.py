@@ -1,5 +1,5 @@
 from pathlib import Path
-from src.templaterx import TemplaterX
+from src.templaterx import TemplaterX, DocxComponentsBuilder
 import zipfile
 import re
 
@@ -7,7 +7,17 @@ import re
 def get_rendered_xml(tplx: TemplaterX, tmp_path: Path) -> str:
     tplx.save(tmp_path)
 
-    cmp = TemplaterX(tmp_path, tplx._jinja_env).components
+    docx_components = DocxComponentsBuilder(
+        tplx._docx_template,
+        jinja_env=tplx._jinja_env,
+        skip_pre_process=True
+    ).build()
+
+    cmp = TemplaterX(
+        template_file=tmp_path,
+        jinja_env=tplx._jinja_env,
+        docx_components=docx_components
+    ).components
 
     all_public_properties_xml = "\n".join([
         cmp.to_clob(p)  # type: ignore
