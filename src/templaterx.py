@@ -21,19 +21,26 @@ class TemplaterX():
         jinja_env: Optional[Environment] = None,
         autoescape=False,
     ) -> None:
-        tpl = DocxTemplate(template_file)
-        tpl.render_init()
-        jja_custom = jinja.get_keep_placeholders_environment(
+        self._template_file = template_file
+        self._jinja_env = jinja.get_keep_placeholders_environment(
             jinja_env,
             autoescape
         )
-        self._docx_components = DocxComponentsBuilder(tpl, jja_custom).build()
-        self._jinja_env = jja_custom
-        self._docx_template = tpl
+        self.init_state()
 
     @property
     def components(self):
         return self._docx_components
+
+    def init_state(self):
+        tpl = DocxTemplate(self._template_file)
+        tpl.render_init()
+        self._docx_template = tpl
+        self._docx_components = DocxComponentsBuilder(
+            tpl,
+            self._jinja_env
+        ).build()
+        self.current_rendering_part: Optional[Part] = None
 
     def new_subdoc(self, docpath: str | IO[bytes] | None = None) -> Document:
         return cast(Document, self._docx_template.new_subdoc(docpath=docpath))
@@ -112,7 +119,7 @@ class TemplaterX():
 
         self._docx_template.is_rendered = True
 
-    def save(self, filename: TemplateFile, *args, **kwargs) -> None:
+    def save(self, filename: TemplateFile, *args, **kwargs) -> TemplateFile:
         # Replacing original document
 
         tree = self._docx_template.fix_tables(
@@ -134,4 +141,7 @@ class TemplaterX():
             self._docx_components.to_clob("footnotes")
         )
 
-        return self._docx_template.save(filename, *args, **kwargs)
+        self._docx_template.save(filename, *args, **kwargs)
+        self.init_state()
+
+        return filename
