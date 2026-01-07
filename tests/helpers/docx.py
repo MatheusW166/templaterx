@@ -1,23 +1,23 @@
 from pathlib import Path
 from src.templaterx import TemplaterX, DocxComponentsBuilder
+from docxtpl import DocxTemplate
 import zipfile
 import re
 
 
-def get_rendered_xml(tplx: TemplaterX, tmp_path: Path) -> str:
+def get_rendered_xml(tplx: TemplaterX, tmp_path: Path, skip_pre_process=True) -> str:
     tplx.save(tmp_path)
 
-    docx_components = DocxComponentsBuilder(
-        tplx._docx_template,
-        jinja_env=tplx._jinja_env,
-        skip_pre_process=True
-    ).build()
+    def build_docxtpl(tpl_path):
+        docxtpl = DocxTemplate(tpl_path)
+        docxtpl.render_init()
+        return docxtpl
 
-    cmp = TemplaterX(
-        template_file=tmp_path,
+    cmp = DocxComponentsBuilder(
+        docx_template=build_docxtpl(tmp_path),
         jinja_env=tplx._jinja_env,
-        docx_components=docx_components
-    ).components
+        skip_pre_process=skip_pre_process
+    ).build()
 
     all_public_properties_xml = "\n".join([
         cmp.to_clob(p)  # type: ignore
