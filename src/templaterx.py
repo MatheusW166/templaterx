@@ -15,7 +15,12 @@ TemplateFile: TypeAlias = IO[bytes] | str | PathLike
 
 
 class TemplaterX():
-    def __init__(self, template_file: TemplateFile, jinja_env: Optional[Environment] = None, autoescape=False) -> None:
+    def __init__(
+        self,
+        template_file: TemplateFile,
+        jinja_env: Optional[Environment] = None,
+        autoescape=False,
+    ) -> None:
         tpl = DocxTemplate(template_file)
         tpl.render_init()
         jja_custom = jinja.get_keep_placeholders_environment(
