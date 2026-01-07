@@ -101,7 +101,8 @@ class DocxComponentsBuilder:
     - creating a list of all template variables
     """
 
-    def __init__(self, docx_template: DocxTemplate, jinja_env: Optional[Environment] = None):
+    def __init__(self, docx_template: DocxTemplate, jinja_env: Optional[Environment] = None, skip_pre_process=False):
+        self._skip_pre_process = skip_pre_process
         self._jinja_env = jinja_env
         self._components = DocxComponents()
         self._docx_template = docx_template
@@ -132,6 +133,10 @@ class DocxComponentsBuilder:
             self._template_vars |= vars
 
     def _pre_process_xml(self, xml: str) -> list[Structure]:
+
+        if self._skip_pre_process:
+            return st.extract_jinja_structures_from_xml(xml)
+
         patched_xml = self._docx_template.patch_xml(xml)
         structures = st.extract_jinja_structures_from_xml(patched_xml)
         self._add_in_adjacency_map(structures)
