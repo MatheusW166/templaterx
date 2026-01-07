@@ -6,7 +6,10 @@ import re
 
 
 def get_rendered_xml(tplx: TemplaterX, tmp_path: Path, skip_pre_process=True) -> str:
-    tplx.save(tmp_path)
+
+    # Avoid saving twice
+    if not tmp_path.is_file():
+        tplx.save(tmp_path)
 
     def build_docxtpl(tpl_path):
         docxtpl = DocxTemplate(tpl_path)
