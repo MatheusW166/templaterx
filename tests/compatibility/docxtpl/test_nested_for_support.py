@@ -29,7 +29,7 @@ def is_all_dishes_rendered(dishes: list[dict], xml: str):
 def is_any_dishes_rendered(dishes: list[dict], xml: str):
     return any(
         (
-            dishe["name"] in xml and
+            dishe["name"] in xml or
             any(ingredient in xml for ingredient in dishe["ingredients"])
         )
         for dishe in dishes
