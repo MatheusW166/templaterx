@@ -235,6 +235,8 @@ source = { virtual = "." }
 dependencies = [
     { name = "docxcompose" },
     { name = "docxtpl" },
+    { name = "jinja2" },
+    { name = "python-docx" },
 ]
 
 [package.dev-dependencies]
@@ -246,8 +248,10 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "docxcompose", specifier = ">=1.4.0" },
+    { name = "docxcompose", specifier = ">=1.4.0,<2" },
     { name = "docxtpl", specifier = ">=0.20.2,<0.21" },
+    { name = "jinja2", specifier = ">=3.1.6,<4" },
+    { name = "python-docx", specifier = ">=1.2.0,<2" },
 ]
 
 [package.metadata.requires-dev]
