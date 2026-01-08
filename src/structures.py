@@ -127,8 +127,8 @@ def extract_jinja_structures_from_xml(xml: str) -> list[Structure]:
         flags=re.DOTALL
     )
 
-    # Anything like {% (for|if)...%}
-    open_pattern = r"\{\%\s*(for|if).*?\%\}"
+    # Anything like {% (for|if|raw)...%}
+    open_pattern = r"\{\%\s*(for|if|raw)\s.*?\%\}"
 
     # Anything like {% end... %}
     close_pattern = r"\{\%\s*end.*?\%\}"
