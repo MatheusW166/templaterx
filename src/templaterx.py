@@ -53,6 +53,9 @@ class TemplaterX():
     def replace_media(self, src: Path | IO[bytes], dst: Path | IO[bytes]):
         return self._docx_template.replace_media(src_file=src, dst_file=dst)
 
+    def replace_pic(self, pic_in_docx_name: str, dst: Path | IO[bytes]):
+        return self._docx_template.replace_pic(embedded_file=pic_in_docx_name, dst_file=dst)
+
     def get_undeclared_template_variables(self, context: Dict[str, Any] | None = None):
         return self._docx_template.get_undeclared_template_variables(self._jinja_env, context)
 
