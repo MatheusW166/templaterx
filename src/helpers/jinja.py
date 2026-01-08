@@ -1,5 +1,4 @@
 from jinja2 import Environment, Undefined, meta
-from typing import Optional
 from functools import wraps
 
 
@@ -80,7 +79,7 @@ def apply_preserve_placeholder_to_all_filters(env: Environment):
         env.filters[name] = make_wrapper(func, name)
 
 
-def get_keep_placeholders_environment(jinja_env: Optional[Environment] = None, autoescape=False):
+def get_keep_placeholders_environment(jinja_env: Environment | None = None, autoescape=False):
     env = jinja_env or Environment()
     env.undefined = KeepPlaceholderUndefined
     env.autoescape = autoescape
@@ -88,7 +87,7 @@ def get_keep_placeholders_environment(jinja_env: Optional[Environment] = None, a
     return env
 
 
-def extract_jinja_vars_from_xml(xml: str, jinja_env: Optional[Environment] = None):
+def extract_jinja_vars_from_xml(xml: str, jinja_env: Environment | None = None):
     env = jinja_env or Environment()
     parsed = env.parse(xml)
     return set(meta.find_undeclared_variables(parsed))

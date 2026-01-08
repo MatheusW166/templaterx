@@ -1,7 +1,8 @@
 from docxtpl import DocxTemplate
+from ..types import DocxPartType
 
 
-def get_footnotes(docx_tpl: DocxTemplate):
+def get_footnotes(docx_tpl: DocxTemplate) -> DocxPartType | None:
     docx = docx_tpl.docx
 
     if not docx:

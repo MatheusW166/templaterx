@@ -1,6 +1,6 @@
-from dataclasses import dataclass
-from typing import cast, Optional
 from jinja2 import Environment
+from dataclasses import dataclass
+from typing import cast
 from .helpers import jinja
 import re
 
@@ -24,7 +24,7 @@ class Structure():
         return self.clob
 
 
-def extract_vars_from_structures(structures: list[Structure], jinja_env: Optional[Environment] = None):
+def extract_vars_from_structures(structures: list[Structure], jinja_env: Environment | None = None):
     for s in structures:
         yield jinja.extract_jinja_vars_from_xml(s.clob, jinja_env)
 

@@ -1,11 +1,11 @@
-from dataclasses import dataclass, field
-from typing import Literal, Optional, TypeAlias, cast, overload
-from docxtpl import DocxTemplate
-from docx.opc.part import Part
 from jinja2 import Environment
+from docxtpl import DocxTemplate
+from dataclasses import dataclass, field
+from typing import Literal, TypeAlias, cast, overload
 from .helpers import docxtpl
-from .structures import Structure
 from . import structures as st
+from .structures import Structure
+from .types import DocxPartType
 
 RelItems: TypeAlias = Literal["headers", "footers"]
 CoreItems: TypeAlias = Literal["body", "footnotes"]
@@ -26,14 +26,14 @@ class DocxComponents():
     _blocks_adjacency: dict[str, set[str]] = field(default_factory=dict)
     _template_vars: set[str] = field(default_factory=set)
 
-    _parts: dict[ComponentKey, Part | dict[str, Part]] = field(
+    _parts: dict[ComponentKey, DocxPartType | dict[str, DocxPartType]] = field(
         default_factory=dict
     )
 
     def __getitem__(self, component: RelItems) -> dict[str, list[Structure]]:
         return getattr(self, component)
 
-    def _get_structures(self, component: ComponentKey, relKey: Optional[str] = None) -> list[Structure]:
+    def _get_structures(self, component: ComponentKey, relKey: str | None = None) -> list[Structure]:
         structures = getattr(self, component)
         if not isinstance(structures, dict):
             return structures
@@ -42,17 +42,17 @@ class DocxComponents():
         return structures[relKey]
 
     @overload
-    def set_part(self, part: Part, component: CoreItems) -> None: ...
+    def set_part(self, part: DocxPartType, component: CoreItems) -> None: ...
 
     @overload
     def set_part(
         self,
-        part: Part,
+        part: DocxPartType,
         component: RelItems,
         relKey: str
     ) -> None: ...
 
-    def set_part(self, part: Part, component: CoreItems | RelItems, relKey: str | None = None):
+    def set_part(self, part: DocxPartType, component: CoreItems | RelItems, relKey: str | None = None):
         if relKey is None:
             self._parts[component] = part
             return
@@ -60,12 +60,16 @@ class DocxComponents():
         cast(dict, self._parts[component])[relKey] = part
 
     @overload
-    def get_part(self, component: CoreItems) -> Part | None: ...
+    def get_part(self, component: CoreItems) -> DocxPartType | None: ...
 
     @overload
-    def get_part(self, component: RelItems, relKey: str) -> Part | None: ...
+    def get_part(
+        self,
+        component: RelItems,
+        relKey: str
+    ) -> DocxPartType | None: ...
 
-    def get_part(self, component: CoreItems | RelItems, relKey: str | None = None) -> Part | None:
+    def get_part(self, component: CoreItems | RelItems, relKey: str | None = None) -> DocxPartType | None:
         part = self._parts.get(component)
         if not part:
             return None
@@ -75,10 +79,10 @@ class DocxComponents():
             raise ValueError("'relKey' cannot be None")
         return part[relKey]
 
-    def to_clob(self, component: ComponentKey, relKey: Optional[str] = None):
+    def to_clob(self, component: ComponentKey, relKey: str | None = None):
         return "".join([s.clob for s in self._get_structures(component, relKey)])
 
-    def is_component_rendered(self, component: ComponentKey, relKey: Optional[str] = None):
+    def is_component_rendered(self, component: ComponentKey, relKey: str | None = None):
         return all([s.is_rendered for s in self._get_structures(component, relKey)])
 
     def get_connected_vars(self, var: str) -> set[str]:
@@ -92,16 +96,9 @@ class DocxComponentsBuilder:
     """
     Builds a DocxComponents instance by extracting and pre-processing
     all XML parts of a DOCX template.
-
-    This class is responsible for:
-    - locating XML parts
-    - patching XML
-    - extracting Jinja2 structures
-    - creating the adjacency list of control blocks
-    - creating a list of all template variables
     """
 
-    def __init__(self, docx_template: DocxTemplate, jinja_env: Optional[Environment] = None, skip_pre_process=False):
+    def __init__(self, docx_template: DocxTemplate, jinja_env: Environment | None = None, skip_pre_process=False):
         self._skip_pre_process = skip_pre_process
         self._jinja_env = jinja_env
         self._components = DocxComponents()

@@ -1,13 +1,12 @@
 from docxtpl import DocxTemplate
-from typing import TypeAlias, IO, Any, Optional, Mapping, cast
+from jinja2 import Environment
+from typing import TypeAlias, IO, Any, Mapping, Dict
 from os import PathLike
+from pathlib import Path
 from .helpers import docxtpl, jinja
 from .structures import *
 from .docx_components import *
-from jinja2 import Environment
-from pathlib import Path
-from docx.document import Document
-from docx.opc.part import Part
+from .types import DocxPartType, SubdocType
 
 
 Context: TypeAlias = Mapping[str, Any]
@@ -18,7 +17,7 @@ class TemplaterX():
     def __init__(
         self,
         template_file: TemplateFile,
-        jinja_env: Optional[Environment] = None,
+        jinja_env: Environment | None = None,
         autoescape=False,
     ) -> None:
         self._template_file = template_file
@@ -40,10 +39,10 @@ class TemplaterX():
             tpl,
             self._jinja_env
         ).build()
-        self.current_rendering_part: Optional[Part] = None
+        self.current_rendering_part: DocxPartType | None = None
 
-    def new_subdoc(self, docpath: str | IO[bytes] | None = None) -> Document:
-        return cast(Document, self._docx_template.new_subdoc(docpath=docpath))
+    def new_subdoc(self, docpath: str | IO[bytes] | None = None) -> SubdocType:
+        return self._docx_template.new_subdoc(docpath=docpath)
 
     def replace_embedded(self, src: Path, dst: Path):
         return self._docx_template.replace_embedded(src_file=src, dst_file=dst)
@@ -54,7 +53,7 @@ class TemplaterX():
     def replace_media(self, src: Path | IO[bytes], dst: Path | IO[bytes]):
         return self._docx_template.replace_media(src_file=src, dst_file=dst)
 
-    def get_undeclared_template_variables(self, context: Optional[dict[str, Any]] = None):
+    def get_undeclared_template_variables(self, context: Dict[str, Any] | None = None):
         return self._docx_template.get_undeclared_template_variables(self._jinja_env, context)
 
     def _render_relitem(self, component: RelItems, context: Context):
@@ -85,7 +84,7 @@ class TemplaterX():
         vars_from_template = jinja.extract_jinja_vars_from_xml(template)
         return len(vars_from_template - set(context.keys())) == 0
 
-    def _render_context(self, component_structures: list[Structure], context: Context, part: Part | None):
+    def _render_context(self, component_structures: list[Structure], context: Context, part: DocxPartType | None):
         self.current_rendering_part = part
 
         def render(structure: Structure):
