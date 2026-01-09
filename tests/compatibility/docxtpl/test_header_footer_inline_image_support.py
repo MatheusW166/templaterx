@@ -1,5 +1,5 @@
 from src.templaterx import TemplaterX
-from src.types import Mm
+from docx.shared import Mm
 from docxtpl import InlineImage
 from .constants import TEMPLATES_DIR
 from tests.helpers import paths as p, docx
