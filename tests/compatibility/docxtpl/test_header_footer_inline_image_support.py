@@ -1,6 +1,6 @@
 from src.templaterx import TemplaterX
+from src.types import Mm
 from docxtpl import InlineImage
-from docx.shared import Mm
 from .constants import TEMPLATES_DIR
 from tests.helpers import paths as p, docx
 import pytest
