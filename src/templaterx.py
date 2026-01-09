@@ -3,7 +3,7 @@ from jinja2 import Environment
 from typing import TypeAlias, IO, Any, Mapping, Dict
 from os import PathLike
 from pathlib import Path
-from .helpers import docxtpl, jinja
+from .helpers import docx, jinja
 from .structures import *
 from .docx_components import *
 from .types import DocxPartType, SubdocType
@@ -40,6 +40,7 @@ class TemplaterX():
             self._jinja_env
         ).build()
         self.current_rendering_part: DocxPartType | None = None
+        self._use_docxtpl_renderer = False
 
     def new_subdoc(self, docpath: str | IO[bytes] | None = None) -> SubdocType:
         return self._docx_template.new_subdoc(docpath=docpath)
@@ -83,20 +84,36 @@ class TemplaterX():
         part = self._docx_components.get_part("body")
         self._docx_components.body = self._render_context(body, context, part)
 
-    def _is_all_vars_in_context(self, template: str, context: Context):
+    @classmethod
+    def _is_all_vars_in_context(cls, template: str, context: Context):
         vars_from_template = jinja.extract_jinja_vars_from_xml(template)
         return len(vars_from_template - set(context.keys())) == 0
 
-    def _render_context(self, component_structures: list[Structure], context: Context, part: DocxPartType | None):
+    def _render_context(
+        self,
+        component_structures: list[Structure],
+        context: Context,
+        part: DocxPartType | None
+    ):
         self.current_rendering_part = part
 
-        def render(structure: Structure):
+        def render_with_docxtpl(structure: Structure):
             structure.clob = self._docx_template.render_xml_part(
                 structure.clob,
                 part,
                 context,
                 self._jinja_env
             )
+
+        def render_with_jinja2(structure: Structure):
+            engine = self._jinja_env.from_string(structure.clob)
+            structure.clob = engine.render(context)
+
+        def render(structure: Structure):
+            if self._use_docxtpl_renderer:
+                render_with_docxtpl(structure)
+            else:
+                render_with_jinja2(structure)
             structure.is_rendered = True
 
         for structure in component_structures:
@@ -112,7 +129,8 @@ class TemplaterX():
 
         return component_structures
 
-    def render(self, context: Context):
+    def render(self, context: Context, use_docx_tpl_renderer=False):
+        self._use_docxtpl_renderer = use_docx_tpl_renderer
 
         self._render_body(context)
         self._render_relitem("headers", context)
@@ -122,6 +140,9 @@ class TemplaterX():
         self._docx_template.is_rendered = True
 
     def save(self, filename: TemplateFile, *args, **kwargs) -> TemplateFile:
+        # Before save
+        self.render({}, use_docx_tpl_renderer=True)
+
         # Replacing original document
 
         tree = self._docx_template.fix_tables(
@@ -138,8 +159,8 @@ class TemplaterX():
             xml = self._docx_components.to_clob("footers", relKey)
             self._docx_template.map_headers_footers_xml(relKey, xml)
 
-        docxtpl.set_footnotes(
-            self._docx_template,
+        docx.set_footnotes(
+            self._docx_template.docx,
             self._docx_components.to_clob("footnotes")
         )
 

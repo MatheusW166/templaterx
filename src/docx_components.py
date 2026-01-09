@@ -2,7 +2,7 @@ from jinja2 import Environment
 from docxtpl import DocxTemplate
 from dataclasses import dataclass, field
 from typing import Literal, TypeAlias, cast, overload
-from .helpers import docxtpl
+from .helpers import docx
 from . import structures as st
 from .structures import Structure
 from .types import DocxPartType
@@ -146,7 +146,7 @@ class DocxComponentsBuilder:
         self._components.set_part(self._docx._part, "body")
 
     def _build_footnotes(self):
-        part = docxtpl.get_footnotes(self._docx_template)
+        part = docx.get_footnotes(self._docx)
 
         if not part:
             return
