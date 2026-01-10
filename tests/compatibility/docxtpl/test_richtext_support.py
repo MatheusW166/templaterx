@@ -14,11 +14,6 @@ def docx_main(tmp_path: p.Path):
     )
 
 
-# -------------------------
-# Tests
-# -------------------------
-
-
 def test_richtext_is_rendered_with_complete_context(docx_main: p.Paths):
 
     tplx = TemplaterX(docx_main.template)
