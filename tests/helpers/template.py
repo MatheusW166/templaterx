@@ -1,15 +1,15 @@
 from typing import Any, Iterable
-from docxtpl import RichText
+from docxtpl import RichText, RichTextParagraph
 import re
 
-RichTextChunk = tuple[str | RichText, dict[str, Any]]
+RichTextChunk = tuple[str | RichText | RichTextParagraph, dict[str, Any]]
 
 
 def rich_text_from_chunks(
     chunks: Iterable[RichTextChunk],
     *,
-    base: RichText | None = None,
-) -> RichText:
+    base: RichText | RichTextParagraph | None = None,
+) -> RichText | RichTextParagraph:
     rt = base or RichText()
 
     for content, options in chunks:

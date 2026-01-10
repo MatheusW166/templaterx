@@ -1,15 +1,14 @@
 from src.templaterx import TemplaterX
 from tests.helpers import template
+from docxtpl import RichText, RichTextParagraph
+from typing import cast
 import docxtpl
 import re
 
 
 class RichTextTplDocxFactory:
     """
-    This class builds a predefined RichText object for
-    tempalte "richtext_tpl.docx" and provides assertions 
-    to check that its properties are correctly rendered 
-    in the final XML.
+    Template: **richtext_tpl.docx**
     """
     @classmethod
     def build_rich_text(cls, tplx: TemplaterX) -> docxtpl.RichText:
@@ -61,9 +60,9 @@ class RichTextTplDocxFactory:
 
         rt = template.rich_text_from_chunks(chunks)
 
-        return template.rich_text_from_chunks(
+        return cast(RichText, template.rich_text_from_chunks(
             [("an example of ", {}), (rt, {})]
-        )
+        ))
 
     @classmethod
     def assert_rich_text_is_rendered(cls, xml: str):
@@ -140,3 +139,142 @@ class RichTextTplDocxFactory:
                     "w:cs": font,
                 },
             )
+
+
+class RichtextParagraphTplDocxFactory:
+    """
+    Template: **richtext_paragraph_tpl.docx**
+    """
+    @classmethod
+    def build_richtext_paragraph(cls) -> RichTextParagraph:
+        rtp = RichTextParagraph()
+
+        paragraph_chunks: list[template.RichTextChunk] = [
+            (
+                "The rich text paragraph function allows paragraph styles to be added to text",
+                {"parastyle": "myrichparastyle"},
+            ),
+            (
+                "Any built in paragraph style can be used",
+                {"parastyle": "IntenseQuote"}
+            ),
+            (
+                "or you can add your own, unlocking all style options",
+                {"parastyle": "createdStyle"},
+            ),
+            (
+                "To use, just create a style in your template word doc with the formatting you want "
+                "and call it in the code.",
+                {"parastyle": "normal"},
+            ),
+            ("This allows for the use of", {}),
+            ("custom bullet\apoints", {"parastyle": "SquareBullet"}),
+            ("Numbered Bullet Points", {"parastyle": "BasicNumbered"}),
+            ("and Alpha Bullet Points.", {
+             "parastyle": "alphaBracketNumbering"}),
+            ("You can", {"parastyle": "normal"}),
+            ("set the", {"parastyle": "centerAlign"}),
+            ("text alignment", {"parastyle": "rightAlign"}),
+            (
+                "as well as the spacing between lines of text. Like this for example, "
+                "this text has very tight spacing between the lines.\aIt also has no space between "
+                "paragraphs of the same style.",
+                {"parastyle": "TightLineSpacing"},
+            ),
+            (
+                "Unlike this one, which has extra large spacing between lines for when you want to "
+                "space things out a bit or just write a little less.",
+                {"parastyle": "WideLineSpacing"},
+            ),
+            (
+                "You can also set the background colour of a line.",
+                {"parastyle": "LineShadingGreen"},
+            ),
+        ]
+
+        template.rich_text_from_chunks(paragraph_chunks, base=rtp)
+
+        richtext_chunks: list[template.RichTextChunk] = [
+            ("This works with ", {}),
+            ("Rich ", {"bold": True}),
+            ("Text ", {"italic": True}),
+            ("Strings", {"underline": "single"}),
+            (" too.", {}),
+        ]
+
+        rt = template.rich_text_from_chunks(richtext_chunks)
+
+        rtp.add(rt, parastyle="SquareBullet")
+
+        return rtp
+
+    @classmethod
+    def assert_richtext_paragraph_is_rendered(cls, xml: str):
+        PARAGRAPH_STYLES = [
+            (
+                "The rich text paragraph function allows paragraph styles to be added to text",
+                "myrichparastyle",
+            ),
+            (
+                "Any built in paragraph style can be used",
+                "IntenseQuote",
+            ),
+            (
+                "or you can add your own, unlocking all style options",
+                "createdStyle",
+            ),
+            (
+                "To use, just create a style in your template word doc with the formatting you want "
+                "and call it in the code.",
+                "normal",
+            ),
+            ("custom bullet", "SquareBullet"),
+            ("Numbered Bullet Points", "BasicNumbered"),
+            ("and Alpha Bullet Points.", "alphaBracketNumbering"),
+            ("You can", "normal"),
+            ("set the", "centerAlign"),
+            ("text alignment", "rightAlign"),
+            (
+                "as well as the spacing between lines of text. Like this for example, "
+                "this text has very tight spacing between the lines.",
+                "TightLineSpacing",
+            ),
+            (
+                "Unlike this one, which has extra large spacing between lines for when you want to "
+                "space things out a bit or just write a little less.",
+                "WideLineSpacing",
+            ),
+            (
+                "You can also set the background colour of a line.",
+                "LineShadingGreen",
+            ),
+        ]
+
+        for text, style in PARAGRAPH_STYLES:
+            template.assert_text_has_property(
+                xml,
+                text,
+                prop_tag="w:pStyle",
+                prop_attrs={"w:val": style},
+            )
+
+        RICH_RUN_PROPERTIES = [
+            ("Rich ", "w:b", None),
+            ("Text ", "w:i", None),
+            ("Strings", "w:u", {"w:val": "single"}),
+        ]
+
+        for text, tag, attrs in RICH_RUN_PROPERTIES:
+            template.assert_text_has_property(
+                xml,
+                text,
+                prop_tag=tag,
+                prop_attrs=attrs,
+            )
+
+        for text in [
+            "This allows for the use of",
+            "This works with ",
+            " too.",
+        ]:
+            assert f">{text}<" in xml
