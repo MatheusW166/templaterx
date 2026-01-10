@@ -1,0 +1,617 @@
+<w:body xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w10="urn:schemas-microsoft-com:office:word" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape" xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:w15="http://schemas.microsoft.com/office/word/2012/wordml">
+    <w:p>
+        <w:pPr>
+            <w:pStyle w:val="Normal"/>
+            <w:rPr/>
+        </w:pPr>
+        <w:r>
+            <w:rPr/>
+            <w:t>When you want a context variable to have rich text with a specific paragraph style (bullet points , line width, alignment etc) you can define the style in word and set it as the parastyle using RichTextParagraph.</w:t>
+        </w:r>
+    </w:p>
+    <w:p>
+        <w:pPr>
+            <w:pStyle w:val="Normal"/>
+            <w:rPr/>
+        </w:pPr>
+        <w:r>
+            <w:rPr/>
+            <w:t>You must use the RichTextParagraph class into your python code (and RichText if you would like character rich text elements like bold, italic etc).</w:t>
+        </w:r>
+    </w:p>
+    <w:p>
+        <w:pPr>
+            <w:pStyle w:val="Normal"/>
+            <w:rPr/>
+        </w:pPr>
+        <w:r>
+            <w:rPr/>
+            <w:t xml:space="preserve">This is useful when you want to format your string with settings beyond what character styles can provide, this is much faster than creating a subdocument. You must use the syntaxe </w:t>
+        </w:r>
+    </w:p>
+    <w:p>
+        <w:pPr>
+            <w:pStyle w:val="Normal"/>
+            <w:rPr/>
+        </w:pPr>
+        <w:r>
+            <w:rPr>
+                <w:lang w:val="en-GB"/>
+            </w:rPr>
+            <w:t>{{</w:t>
+        </w:r>
+        <w:r>
+            <w:rPr>
+                <w:lang w:val="en-GB"/>
+            </w:rPr>
+            <w:t>p</w:t>
+        </w:r>
+        <w:r>
+            <w:rPr/>
+            <w:t xml:space="preserve"> context_variable }}</w:t>
+        </w:r>
+    </w:p>
+    <w:p>
+        <w:pPr>
+            <w:pStyle w:val="Normal"/>
+            <w:rPr/>
+        </w:pPr>
+        <w:r>
+            <w:rPr/>
+            <w:t>Here is an example below :</w:t>
+        </w:r>
+    </w:p>
+    <w:p>
+        <w:pPr>
+            <w:pStyle w:val="myrichparastyle"/>
+        </w:pPr>
+        <w:r>
+            <w:t xml:space="preserve">The rich text paragraph function allows paragraph styles to be added to text</w:t>
+        </w:r>
+    </w:p>
+    <w:p>
+        <w:pPr>
+            <w:pStyle w:val="IntenseQuote"/>
+        </w:pPr>
+        <w:r>
+            <w:t xml:space="preserve">Any built in paragraph style can be used</w:t>
+        </w:r>
+    </w:p>
+    <w:p>
+        <w:pPr>
+            <w:pStyle w:val="createdStyle"/>
+        </w:pPr>
+        <w:r>
+            <w:t xml:space="preserve">or you can add your own, unlocking all style options</w:t>
+        </w:r>
+    </w:p>
+    <w:p>
+        <w:pPr>
+            <w:pStyle w:val="normal"/>
+        </w:pPr>
+        <w:r>
+            <w:t xml:space="preserve">To use, just create a style in your template word doc with the formatting you want and call it in the code.</w:t>
+        </w:r>
+    </w:p>
+    <w:p>
+        <w:r>
+            <w:t xml:space="preserve">This allows for the use of</w:t>
+        </w:r>
+    </w:p>
+    <w:p>
+        <w:pPr>
+            <w:pStyle w:val="SquareBullet"/>
+        </w:pPr>
+        <w:r>
+            <w:t xml:space="preserve">custom bullet</w:t>
+        </w:r>
+    </w:p>
+    <w:p>
+        <w:pPr>
+            <w:pStyle w:val="SquareBullet"/>
+        </w:pPr>
+        <w:r>
+            <w:t xml:space="preserve">points</w:t>
+        </w:r>
+    </w:p>
+    <w:p>
+        <w:pPr>
+            <w:pStyle w:val="BasicNumbered"/>
+        </w:pPr>
+        <w:r>
+            <w:t xml:space="preserve">Numbered Bullet Points</w:t>
+        </w:r>
+    </w:p>
+    <w:p>
+        <w:pPr>
+            <w:pStyle w:val="alphaBracketNumbering"/>
+        </w:pPr>
+        <w:r>
+            <w:t xml:space="preserve">and Alpha Bullet Points.</w:t>
+        </w:r>
+    </w:p>
+    <w:p>
+        <w:pPr>
+            <w:pStyle w:val="normal"/>
+        </w:pPr>
+        <w:r>
+            <w:t xml:space="preserve">You can</w:t>
+        </w:r>
+    </w:p>
+    <w:p>
+        <w:pPr>
+            <w:pStyle w:val="centerAlign"/>
+        </w:pPr>
+        <w:r>
+            <w:t xml:space="preserve">set the</w:t>
+        </w:r>
+    </w:p>
+    <w:p>
+        <w:pPr>
+            <w:pStyle w:val="rightAlign"/>
+        </w:pPr>
+        <w:r>
+            <w:t xml:space="preserve">text alignment</w:t>
+        </w:r>
+    </w:p>
+    <w:p>
+        <w:pPr>
+            <w:pStyle w:val="TightLineSpacing"/>
+        </w:pPr>
+        <w:r>
+            <w:t xml:space="preserve">as well as the spacing between lines of text. Like this for example, this text has very tight spacing between the lines.</w:t>
+        </w:r>
+    </w:p>
+    <w:p>
+        <w:pPr>
+            <w:pStyle w:val="TightLineSpacing"/>
+        </w:pPr>
+        <w:r>
+            <w:t xml:space="preserve">It also has no space between paragraphs of the same style.</w:t>
+        </w:r>
+    </w:p>
+    <w:p>
+        <w:pPr>
+            <w:pStyle w:val="WideLineSpacing"/>
+        </w:pPr>
+        <w:r>
+            <w:t xml:space="preserve">Unlike this one, which has extra large spacing between lines for when you want to space things out a bit or just write a little less.</w:t>
+        </w:r>
+    </w:p>
+    <w:p>
+        <w:pPr>
+            <w:pStyle w:val="LineShadingGreen"/>
+        </w:pPr>
+        <w:r>
+            <w:t xml:space="preserve">You can also set the background colour of a line.</w:t>
+        </w:r>
+    </w:p>
+    <w:p>
+        <w:pPr>
+            <w:pStyle w:val="SquareBullet"/>
+        </w:pPr>
+        <w:r>
+            <w:t xml:space="preserve">This works with </w:t>
+        </w:r>
+        <w:r>
+            <w:rPr>
+                <w:b/>
+            </w:rPr>
+            <w:t xml:space="preserve">Rich </w:t>
+        </w:r>
+        <w:r>
+            <w:rPr>
+                <w:i/>
+            </w:rPr>
+            <w:t xml:space="preserve">Text </w:t>
+        </w:r>
+        <w:r>
+            <w:rPr>
+                <w:u w:val="single"/>
+            </w:rPr>
+            <w:t xml:space="preserve">Strings</w:t>
+        </w:r>
+        <w:r>
+            <w:t xml:space="preserve"> too.</w:t>
+        </w:r>
+    </w:p>
+    <w:p>
+        <w:pPr>
+            <w:pStyle w:val="Normal"/>
+            <w:rPr/>
+        </w:pPr>
+        <w:r>
+            <w:rPr/>
+        </w:r>
+    </w:p>
+    <w:tbl>
+        <w:tblPr>
+            <w:tblStyle w:val="TableGrid"/>
+            <w:tblW w:w="9039" w:type="dxa"/>
+            <w:jc w:val="left"/>
+            <w:tblInd w:w="0" w:type="dxa"/>
+            <w:tblLayout w:type="fixed"/>
+            <w:tblCellMar>
+                <w:top w:w="0" w:type="dxa"/>
+                <w:left w:w="108" w:type="dxa"/>
+                <w:bottom w:w="0" w:type="dxa"/>
+                <w:right w:w="108" w:type="dxa"/>
+            </w:tblCellMar>
+            <w:tblLook w:val="04a0" w:noHBand="0" w:noVBand="1" w:firstColumn="1" w:lastRow="0" w:lastColumn="0" w:firstRow="1"/>
+        </w:tblPr>
+        <w:tblGrid>
+            <w:gridCol w:w="6345"/>
+            <w:gridCol w:w="2693"/>
+        </w:tblGrid>
+        <w:tr>
+            <w:trPr/>
+            <w:tc>
+                <w:tcPr>
+                    <w:tcW w:w="6345" w:type="dxa"/>
+                    <w:tcBorders/>
+                </w:tcPr>
+                <w:p>
+                    <w:pPr>
+                        <w:pStyle w:val="Normal"/>
+                        <w:widowControl/>
+                        <w:spacing w:lineRule="auto" w:line="240" w:before="0" w:after="0"/>
+                        <w:jc w:val="left"/>
+                        <w:rPr>
+                            <w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:eastAsia="Calibri" w:cs=""/>
+                            <w:kern w:val="0"/>
+                            <w:sz w:val="22"/>
+                            <w:szCs w:val="22"/>
+                            <w:lang w:val="fr-FR" w:eastAsia="en-US" w:bidi="ar-SA"/>
+                        </w:rPr>
+                    </w:pPr>
+                    <w:r>
+                        <w:rPr>
+                            <w:rFonts w:eastAsia="Calibri" w:cs=""/>
+                            <w:kern w:val="0"/>
+                            <w:sz w:val="22"/>
+                            <w:szCs w:val="22"/>
+                            <w:lang w:val="fr-FR" w:eastAsia="en-US" w:bidi="ar-SA"/>
+                        </w:rPr>
+                        <w:t>It even works inside tables</w:t>
+                    </w:r>
+                </w:p>
+                <w:p>
+                    <w:pPr>
+                        <w:pStyle w:val="Normal"/>
+                        <w:widowControl/>
+                        <w:spacing w:lineRule="auto" w:line="240" w:before="0" w:after="0"/>
+                        <w:jc w:val="left"/>
+                        <w:rPr>
+                            <w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:eastAsia="Calibri" w:cs=""/>
+                            <w:kern w:val="0"/>
+                            <w:sz w:val="22"/>
+                            <w:szCs w:val="22"/>
+                            <w:lang w:val="fr-FR" w:eastAsia="en-US" w:bidi="ar-SA"/>
+                        </w:rPr>
+                    </w:pPr>
+                    <w:r>
+                        <w:rPr>
+                            <w:rFonts w:eastAsia="Calibri" w:cs=""/>
+                            <w:kern w:val="0"/>
+                            <w:sz w:val="22"/>
+                            <w:szCs w:val="22"/>
+                            <w:lang w:val="fr-FR" w:eastAsia="en-US" w:bidi="ar-SA"/>
+                        </w:rPr>
+                    </w:r>
+                </w:p>
+            </w:tc>
+            <w:tc>
+                <w:tcPr>
+                    <w:tcW w:w="2693" w:type="dxa"/>
+                    <w:tcBorders/>
+                </w:tcPr>
+                <w:p>
+                    <w:pPr>
+                        <w:pStyle w:val="Normal"/>
+                        <w:widowControl/>
+                        <w:spacing w:lineRule="auto" w:line="240" w:before="0" w:after="0"/>
+                        <w:jc w:val="left"/>
+                        <w:rPr>
+                            <w:lang w:val="en-US"/>
+                        </w:rPr>
+                    </w:pPr>
+                    <w:r>
+                        <w:rPr>
+                            <w:rFonts w:eastAsia="Calibri" w:cs=""/>
+                            <w:kern w:val="0"/>
+                            <w:sz w:val="22"/>
+                            <w:szCs w:val="22"/>
+                            <w:lang w:val="fr-FR" w:eastAsia="en-US" w:bidi="ar-SA"/>
+                        </w:rPr>
+                    </w:r>
+                </w:p>
+            </w:tc>
+        </w:tr>
+        <w:tr>
+            <w:trPr/>
+            <w:tc>
+                <w:tcPr>
+                    <w:tcW w:w="6345" w:type="dxa"/>
+                    <w:tcBorders/>
+                </w:tcPr>
+                <w:p>
+                    <w:pPr>
+                        <w:pStyle w:val="myrichparastyle"/>
+                    </w:pPr>
+                    <w:r>
+                        <w:t xml:space="preserve">The rich text paragraph function allows paragraph styles to be added to text</w:t>
+                    </w:r>
+                </w:p>
+                <w:p>
+                    <w:pPr>
+                        <w:pStyle w:val="IntenseQuote"/>
+                    </w:pPr>
+                    <w:r>
+                        <w:t xml:space="preserve">Any built in paragraph style can be used</w:t>
+                    </w:r>
+                </w:p>
+                <w:p>
+                    <w:pPr>
+                        <w:pStyle w:val="createdStyle"/>
+                    </w:pPr>
+                    <w:r>
+                        <w:t xml:space="preserve">or you can add your own, unlocking all style options</w:t>
+                    </w:r>
+                </w:p>
+                <w:p>
+                    <w:pPr>
+                        <w:pStyle w:val="normal"/>
+                    </w:pPr>
+                    <w:r>
+                        <w:t xml:space="preserve">To use, just create a style in your template word doc with the formatting you want and call it in the code.</w:t>
+                    </w:r>
+                </w:p>
+                <w:p>
+                    <w:r>
+                        <w:t xml:space="preserve">This allows for the use of</w:t>
+                    </w:r>
+                </w:p>
+                <w:p>
+                    <w:pPr>
+                        <w:pStyle w:val="SquareBullet"/>
+                    </w:pPr>
+                    <w:r>
+                        <w:t xml:space="preserve">custom bullet</w:t>
+                    </w:r>
+                </w:p>
+                <w:p>
+                    <w:pPr>
+                        <w:pStyle w:val="SquareBullet"/>
+                    </w:pPr>
+                    <w:r>
+                        <w:t xml:space="preserve">points</w:t>
+                    </w:r>
+                </w:p>
+                <w:p>
+                    <w:pPr>
+                        <w:pStyle w:val="BasicNumbered"/>
+                    </w:pPr>
+                    <w:r>
+                        <w:t xml:space="preserve">Numbered Bullet Points</w:t>
+                    </w:r>
+                </w:p>
+                <w:p>
+                    <w:pPr>
+                        <w:pStyle w:val="alphaBracketNumbering"/>
+                    </w:pPr>
+                    <w:r>
+                        <w:t xml:space="preserve">and Alpha Bullet Points.</w:t>
+                    </w:r>
+                </w:p>
+                <w:p>
+                    <w:pPr>
+                        <w:pStyle w:val="normal"/>
+                    </w:pPr>
+                    <w:r>
+                        <w:t xml:space="preserve">You can</w:t>
+                    </w:r>
+                </w:p>
+                <w:p>
+                    <w:pPr>
+                        <w:pStyle w:val="centerAlign"/>
+                    </w:pPr>
+                    <w:r>
+                        <w:t xml:space="preserve">set the</w:t>
+                    </w:r>
+                </w:p>
+                <w:p>
+                    <w:pPr>
+                        <w:pStyle w:val="rightAlign"/>
+                    </w:pPr>
+                    <w:r>
+                        <w:t xml:space="preserve">text alignment</w:t>
+                    </w:r>
+                </w:p>
+                <w:p>
+                    <w:pPr>
+                        <w:pStyle w:val="TightLineSpacing"/>
+                    </w:pPr>
+                    <w:r>
+                        <w:t xml:space="preserve">as well as the spacing between lines of text. Like this for example, this text has very tight spacing between the lines.</w:t>
+                    </w:r>
+                </w:p>
+                <w:p>
+                    <w:pPr>
+                        <w:pStyle w:val="TightLineSpacing"/>
+                    </w:pPr>
+                    <w:r>
+                        <w:t xml:space="preserve">It also has no space between paragraphs of the same style.</w:t>
+                    </w:r>
+                </w:p>
+                <w:p>
+                    <w:pPr>
+                        <w:pStyle w:val="WideLineSpacing"/>
+                    </w:pPr>
+                    <w:r>
+                        <w:t xml:space="preserve">Unlike this one, which has extra large spacing between lines for when you want to space things out a bit or just write a little less.</w:t>
+                    </w:r>
+                </w:p>
+                <w:p>
+                    <w:pPr>
+                        <w:pStyle w:val="LineShadingGreen"/>
+                    </w:pPr>
+                    <w:r>
+                        <w:t xml:space="preserve">You can also set the background colour of a line.</w:t>
+                    </w:r>
+                </w:p>
+                <w:p>
+                    <w:pPr>
+                        <w:pStyle w:val="SquareBullet"/>
+                    </w:pPr>
+                    <w:r>
+                        <w:t xml:space="preserve">This works with </w:t>
+                    </w:r>
+                    <w:r>
+                        <w:rPr>
+                            <w:b/>
+                        </w:rPr>
+                        <w:t xml:space="preserve">Rich </w:t>
+                    </w:r>
+                    <w:r>
+                        <w:rPr>
+                            <w:i/>
+                        </w:rPr>
+                        <w:t xml:space="preserve">Text </w:t>
+                    </w:r>
+                    <w:r>
+                        <w:rPr>
+                            <w:u w:val="single"/>
+                        </w:rPr>
+                        <w:t xml:space="preserve">Strings</w:t>
+                    </w:r>
+                    <w:r>
+                        <w:t xml:space="preserve"> too.</w:t>
+                    </w:r>
+                </w:p>
+                <w:p>
+                    <w:pPr>
+                        <w:pStyle w:val="Normal"/>
+                        <w:widowControl/>
+                        <w:spacing w:lineRule="auto" w:line="240" w:before="0" w:after="0"/>
+                        <w:jc w:val="left"/>
+                        <w:rPr>
+                            <w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:eastAsia="Calibri" w:cs=""/>
+                            <w:kern w:val="0"/>
+                            <w:sz w:val="22"/>
+                            <w:szCs w:val="22"/>
+                            <w:lang w:val="fr-FR" w:eastAsia="en-US" w:bidi="ar-SA"/>
+                        </w:rPr>
+                    </w:pPr>
+                    <w:r>
+                        <w:rPr>
+                            <w:rFonts w:eastAsia="Calibri" w:cs=""/>
+                            <w:kern w:val="0"/>
+                            <w:sz w:val="22"/>
+                            <w:szCs w:val="22"/>
+                            <w:lang w:val="fr-FR" w:eastAsia="en-US" w:bidi="ar-SA"/>
+                        </w:rPr>
+                    </w:r>
+                </w:p>
+            </w:tc>
+            <w:tc>
+                <w:tcPr>
+                    <w:tcW w:w="2693" w:type="dxa"/>
+                    <w:tcBorders/>
+                </w:tcPr>
+                <w:p>
+                    <w:pPr>
+                        <w:pStyle w:val="SquareBullet"/>
+                        <w:widowControl/>
+                        <w:numPr>
+                            <w:ilvl w:val="0"/>
+                            <w:numId w:val="0"/>
+                        </w:numPr>
+                        <w:spacing w:lineRule="auto" w:line="240" w:before="0" w:after="0"/>
+                        <w:ind w:left="1003" w:hanging="0"/>
+                        <w:contextualSpacing/>
+                        <w:jc w:val="left"/>
+                        <w:rPr>
+                            <w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:eastAsia="Calibri" w:cs=""/>
+                            <w:kern w:val="0"/>
+                            <w:sz w:val="22"/>
+                            <w:szCs w:val="22"/>
+                            <w:lang w:eastAsia="en-US" w:bidi="ar-SA"/>
+                        </w:rPr>
+                    </w:pPr>
+                    <w:r>
+                        <w:rPr>
+                            <w:rFonts w:eastAsia="Calibri" w:cs=""/>
+                            <w:kern w:val="0"/>
+                            <w:sz w:val="22"/>
+                            <w:szCs w:val="22"/>
+                            <w:lang w:eastAsia="en-US" w:bidi="ar-SA"/>
+                        </w:rPr>
+                    </w:r>
+                </w:p>
+            </w:tc>
+        </w:tr>
+    </w:tbl>
+    <w:p>
+        <w:pPr>
+            <w:pStyle w:val="Normal"/>
+            <w:rPr/>
+        </w:pPr>
+        <w:r>
+            <w:rPr/>
+        </w:r>
+    </w:p>
+    <w:p>
+        <w:pPr>
+            <w:pStyle w:val="Normal"/>
+            <w:rPr/>
+        </w:pPr>
+        <w:r>
+            <w:rPr/>
+            <w:t>Note :  In this template, the styles used have been defined with Microsoft word.</w:t>
+        </w:r>
+    </w:p>
+    <w:p>
+        <w:pPr>
+            <w:pStyle w:val="Normal"/>
+            <w:rPr/>
+        </w:pPr>
+        <w:r>
+            <w:rPr/>
+            <w:t xml:space="preserve">Note : Rich Text Paragraph Tags </w:t>
+        </w:r>
+        <w:r>
+            <w:rPr>
+                <w:b/>
+                <w:bCs/>
+            </w:rPr>
+            <w:t>must be on a new line</w:t>
+        </w:r>
+        <w:r>
+            <w:rPr/>
+            <w:t xml:space="preserve"> to work, if you add it to the end of a line of text that text will be lost in the rendering proccess.</w:t>
+        </w:r>
+    </w:p>
+    <w:p>
+        <w:pPr>
+            <w:pStyle w:val="Normal"/>
+            <w:widowControl/>
+            <w:bidi w:val="0"/>
+            <w:spacing w:lineRule="auto" w:line="276" w:before="0" w:after="200"/>
+            <w:jc w:val="left"/>
+            <w:rPr/>
+        </w:pPr>
+        <w:r>
+            <w:rPr/>
+            <w:t>( Home tab -&gt; Create a style -&gt; Modify button )</w:t>
+        </w:r>
+    </w:p>
+    <w:sectPr>
+        <w:type w:val="nextPage"/>
+        <w:pgSz w:w="11906" w:h="16838"/>
+        <w:pgMar w:left="1417" w:right="1417" w:gutter="0" w:header="0" w:top="1417" w:footer="0" w:bottom="1417"/>
+        <w:pgNumType w:fmt="decimal"/>
+        <w:formProt w:val="false"/>
+        <w:textDirection w:val="lrTb"/>
+        <w:docGrid w:type="default" w:linePitch="360" w:charSpace="4096"/>
+    </w:sectPr>
+</w:body>

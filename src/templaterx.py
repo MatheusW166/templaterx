@@ -1,6 +1,6 @@
 from docxtpl import DocxTemplate
 from jinja2 import Environment
-from typing import TypeAlias, IO, Any, Mapping, Dict
+from typing import TypeAlias, IO, Any, Mapping, Dict, Callable
 from os import PathLike
 from pathlib import Path
 from .helpers import docx, jinja
@@ -113,10 +113,12 @@ class TemplaterX():
             structure.clob = engine.render(context)
 
         def render(structure: Structure):
+            renderer = render_with_jinja2
+
             if self._use_docxtpl_renderer:
-                render_with_docxtpl(structure)
-            else:
-                render_with_jinja2(structure)
+                renderer = render_with_docxtpl
+
+            renderer(structure)
             structure.is_rendered = True
 
         for structure in component_structures:
