@@ -13,7 +13,7 @@ def docx_main(tmp_path: p.Path):
     )
 
 
-def test_ritchtext_east_asia_fonts_support(docx_main):
+def test_richtext_east_asia_fonts_support(docx_main):
     tplx = TemplaterX(docx_main.template)
 
     rt = RichText("测试TEST", font="eastAsia:Microsoft YaHei")
