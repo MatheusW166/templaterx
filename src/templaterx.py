@@ -42,6 +42,9 @@ class TemplaterX():
         self.current_rendering_part: DocxPartType | None = None
         self._use_docxtpl_renderer = False
 
+    def build_url_id(self, url: DocxPartType | str):
+        return self._docx_template.build_url_id(url)
+
     def new_subdoc(self, docpath: str | IO[bytes] | None = None) -> SubdocType:
         return self._docx_template.new_subdoc(docpath=docpath)
 
