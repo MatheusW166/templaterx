@@ -147,3 +147,30 @@ def assert_text_has_run_property(
         f'Text "{text}" with run property '
         f'<{prop_tag} {prop_attrs or ""}> not found'
     )
+
+
+def assert_vertical_merge(xml: str, *, cell_text: str, total_rows: int):
+    start_match = re.search(
+        rf"""
+        <w:tc>
+            .*?
+            <w:tcPr>.*?<w:vMerge\s+w:val="restart"\s*/>.*?</w:tcPr>
+            .*?
+            <w:t\b[^>]*>\s*{cell_text}\s*</w:t>
+            .*?
+        </w:tc>
+        """,
+        xml,
+        re.DOTALL | re.VERBOSE
+    )
+
+    assert start_match is not None
+
+    tail = xml[start_match.end():]
+    continuations = re.findall(
+        r'<w:tcPr>.*?<w:vMerge w:val="continue"/>.*?</w:tcPr>',
+        tail,
+        re.DOTALL,
+    )
+
+    assert len(continuations)+1 == total_rows
