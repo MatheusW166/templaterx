@@ -2,6 +2,7 @@ from jinja2 import Environment
 from dataclasses import dataclass
 from typing import cast
 from .helpers import jinja
+from .exceptions import TemplateError
 import re
 
 
@@ -164,7 +165,9 @@ def extract_jinja_structures_from_xml(xml: str) -> list[Structure]:
             reserved_word = match(reserved_word_pattern, open_block, 1)
 
             if not reserved_word:
-                raise RuntimeError(open_block)
+                raise TemplateError(
+                    f"Reserved word not found for '{open_block}'"
+                )
 
             close_block_expected = "end"+reserved_word
             close_block_expected_stack.append(close_block_expected)
@@ -179,7 +182,9 @@ def extract_jinja_structures_from_xml(xml: str) -> list[Structure]:
             continue
 
         if not close_block_expected_stack:
-            raise RuntimeError(f"No open block found\n{current_structure}")
+            raise TemplateError(
+                f"Open block not found for '{current_structure}'"
+            )
 
         if close_block_expected_stack[-1] in close_block:
             close_block_expected_stack.pop()
@@ -188,8 +193,8 @@ def extract_jinja_structures_from_xml(xml: str) -> list[Structure]:
             finish_current_structure(is_control_block=True)
 
     if close_block_expected_stack:
-        raise RuntimeError(
-            f"Close blocks were not found: {close_block_expected_stack}"
+        raise TemplateError(
+            f"Those close blocks were not found: {close_block_expected_stack}"
         )
 
     return structures
