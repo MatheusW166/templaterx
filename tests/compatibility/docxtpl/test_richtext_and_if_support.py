@@ -28,7 +28,7 @@ def test_richtext_should_be_rendered_with_if_when_foobar_is_a_valid_richtext(doc
     xml = docx.get_rendered_xml(tplx, docx_main.out)
 
     assert "COUCOU" in xml
-    template.assert_text_has_property(
+    template.assert_text_has_run_property(
         xml, text,
         prop_tag="w:color",
         prop_attrs={"w:val": color}
@@ -75,7 +75,7 @@ def test_incremental_render_should_work_normally_with_richtext_and_if(docx_main)
     xml = docx.get_rendered_xml(tplx, docx_main.out)
 
     assert "COUCOU" in xml
-    template.assert_text_has_property(
+    template.assert_text_has_run_property(
         xml, text,
         prop_tag="w:color",
         prop_attrs={"w:val": color}

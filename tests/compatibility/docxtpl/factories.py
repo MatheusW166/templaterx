@@ -113,7 +113,7 @@ class RichTextTplDocxFactory:
         assert '<w:br w:type="page"/>' in xml
 
         for text, tag, attrs in RICH_PROPERTIES:
-            template.assert_text_has_property(
+            template.assert_text_has_run_property(
                 xml,
                 text,
                 prop_tag=tag,
@@ -121,7 +121,7 @@ class RichTextTplDocxFactory:
             )
 
         for ul in UNDERLINES:
-            template.assert_text_has_property(
+            template.assert_text_has_run_property(
                 xml,
                 f"Underline : {ul}",
                 prop_tag="w:u",
@@ -129,7 +129,7 @@ class RichTextTplDocxFactory:
             )
 
         for font in FONTS:
-            template.assert_text_has_property(
+            template.assert_text_has_run_property(
                 xml,
                 font,
                 prop_tag="w:rFonts",
@@ -251,7 +251,7 @@ class RichtextParagraphTplDocxFactory:
         ]
 
         for text, style in PARAGRAPH_STYLES:
-            template.assert_text_has_property(
+            template.assert_text_has_run_property(
                 xml,
                 text,
                 prop_tag="w:pStyle",
@@ -265,7 +265,7 @@ class RichtextParagraphTplDocxFactory:
         ]
 
         for text, tag, attrs in RICH_RUN_PROPERTIES:
-            template.assert_text_has_property(
+            template.assert_text_has_run_property(
                 xml,
                 text,
                 prop_tag=tag,

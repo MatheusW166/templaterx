@@ -29,7 +29,7 @@ def test_richtext_east_asia_fonts_support(docx_main):
     xml = docx.get_rendered_xml(tplx, docx_main.out)
 
     for font in (r"Microsoft YaHei", r"微软雅黑", r"SimSun"):
-        template.assert_text_has_property(
+        template.assert_text_has_run_property(
             xml,
             r"测试TEST",
             prop_tag="w:rFonts",

@@ -30,7 +30,66 @@ def xml_has_column(xml: str, column_name: str):
     return re.search(rf"<w:tc>.*?{column_name}.*?</w:tc>", xml) is not None
 
 
-def text_has_property(
+def text_has_paragraph_property(
+    xml: str,
+    text: str,
+    *,
+    prop_tag: str,
+    prop_attrs: dict[str, str] | None = None,
+):
+    """
+    Checks that a given text appears in a paragraph (<w:p>)
+    that contains the specified paragraph property.
+    """
+
+    attrs_pattern = ""
+    if prop_attrs:
+        attrs_pattern = "".join(
+            rf'\s+{re.escape(k)}="{re.escape(v)}"'
+            for k, v in prop_attrs.items()
+        )
+
+    pattern = re.compile(
+        rf"""
+        <w:p\b[^>]*>
+            .*?
+            <w:pPr>.*?
+            <{prop_tag}\b{attrs_pattern}\s*/?>
+            .*?</w:pPr>
+            .*?
+            <w:r\b[^>]*>
+                .*?
+                <w:t\b[^>]*>{re.escape(text)}.*?</w:t>
+                .*?
+            </w:r>
+            .*?
+        </w:p>
+        """,
+        re.DOTALL | re.VERBOSE,
+    )
+
+    return pattern.search(xml) is not None
+
+
+def assert_text_has_paragraph_property(
+    xml: str,
+    text: str,
+    *,
+    prop_tag: str,
+    prop_attrs: dict[str, str] | None = None,
+):
+    has_prop = text_has_paragraph_property(
+        xml, text,
+        prop_tag=prop_tag,
+        prop_attrs=prop_attrs
+    )
+    assert has_prop, (
+        f'Text "{text}" with paragraph property '
+        f'<{prop_tag} {prop_attrs or ""}> not found'
+    )
+
+
+def text_has_run_property(
     xml: str,
     text: str,
     *,
@@ -72,14 +131,14 @@ def text_has_property(
     return pattern.search(xml) is not None
 
 
-def assert_text_has_property(
+def assert_text_has_run_property(
     xml: str,
     text: str,
     *,
     prop_tag: str,
     prop_attrs: dict[str, str] | None = None,
 ):
-    has_prop = text_has_property(
+    has_prop = text_has_run_property(
         xml, text,
         prop_tag=prop_tag,
         prop_attrs=prop_attrs
