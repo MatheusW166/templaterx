@@ -1,7 +1,7 @@
 from src.templaterx import TemplaterX
 from .constants import TEMPLATES_DIR
 from tests.helpers import paths as p
-from jinja2.exceptions import TemplateError
+from src.exceptions import TemplateError
 import pytest
 
 
