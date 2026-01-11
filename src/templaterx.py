@@ -1,12 +1,12 @@
 from docxtpl import DocxTemplate
 from jinja2 import Environment
-from typing import TypeAlias, IO, Any, Mapping, Dict, Callable
+from typing import TypeAlias, IO, Any, Mapping, Dict
 from os import PathLike
 from pathlib import Path
 from .helpers import docx, jinja
 from .structures import *
 from .docx_components import *
-from .types import DocxPartType, SubdocType
+from .types import DocxPartType, DocumentType
 
 
 Context: TypeAlias = Mapping[str, Any]
@@ -45,8 +45,8 @@ class TemplaterX():
     def build_url_id(self, url: DocxPartType | str):
         return self._docx_template.build_url_id(url)
 
-    def new_subdoc(self, docpath: str | IO[bytes] | None = None) -> SubdocType:
-        return self._docx_template.new_subdoc(docpath=docpath)
+    def new_subdoc(self, docpath: str | IO[bytes] | None = None) -> DocumentType:
+        return cast(DocumentType, self._docx_template.new_subdoc(docpath=docpath))
 
     def replace_embedded(self, src: Path, dst: Path):
         return self._docx_template.replace_embedded(src_file=src, dst_file=dst)
