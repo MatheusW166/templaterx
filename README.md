@@ -1,41 +1,39 @@
 # TemplaterX
 
-**TemplaterX** is a Python library for **stateful and incremental document rendering**, built on top of **docxtpl**.
 
-Unlike traditional template rendering engines that require the full context upfront, TemplaterX allows you to **render documents progressively**, applying partial contexts over multiple render calls while preserving unresolved placeholders and control blocks.
+This is a Python library for incremental document rendering, built on top of [docxtpl](https://github.com/elapouya/python-docx-template).
+
+Unlike traditional template rendering engines that require the full context upfront, TemplaterX allows you to render documents progressively, applying partial contexts over multiple render calls.
+
 
 ## Key Concept
 
 > **Render documents incrementally, only when data is available.**
 
-TemplaterX maintains an internal template state and allows the `render()` method to be called multiple times.  
-Each call applies only the data that can be safely rendered at that moment.
+Each call applies only the data that can be safely rendered at that moment. Unresolved placeholders and control blocks remain intact until all required variables are present.
 
-Unresolved placeholders and control blocks remain intact until all required variables are present.
 
 ## Features
 
-- **Incremental Rendering**
-  - Call `render()` multiple times with partial contexts.
-  - No need to provide the full context upfront.
+- **Incremental Rendering**;
 
-- **Lower Memory Usage**
+- **Lower Memory Usage**:
   - Avoids building large in-memory contexts.
-  - Ideal for large documents and streamed data sources.
-
-- **Control Block Safety**
-  - Control blocks delimited with `{% ... %}` are rendered **only when all internal variables are available**.
+- **Control Block Safety**:
+  - Control blocks delimited with `{% ... %}` are rendered **only when all internal variables are available**;
   - Otherwise, all its placeholders are preserved.
 
-- **docxtpl based**
-  - Uses standard docxtpl syntax.
-  - Fully compatible with existing `.docx` templates.
+- **docxtpl based**:
+  - Uses standard docxtpl syntax;
+  - Fully compatible with existing `.docx` templates (see [Running Tests](#running-tests) section).
+
 
 ## Installation
 
 ```bash
 pip install templaterx
 ```
+
 
 ## Basic Usage
 
@@ -51,20 +49,87 @@ tpl.render({"salary": 10000})
 tpl.save("output.docx")
 ```
 
+
 ## ⚠️ Control Block Rule
 
 A control block is rendered only if all variables used inside it are present in the context. 
 
 If any required variable is missing, placeholders remain unchanged.
 
+
+### Incremental vs Monolithic Rendering
+
+Traditional template engines such as docxtpl operate using a monolithic rendering model: the entire context must be fully constructed and loaded into memory before rendering can begin.
+
+This approach works well for small or medium-sized documents, but it introduces significant memory pressure when dealing with:
+
+- **Large collections**;
+
+- **Data coming from multiple sources**;
+- **Streaming or paginated datasets**.
+
+
 ## Use Cases
 
-- Large document generation
+- **Large document generation**;
 
-- Streaming data pipelines
+- **Streaming data pipelines**;
+- **Reports built from multiple data sources**;
+- **Memory-constrained environments**;
+- **Staged or conditional document assembly**.
 
-- Reports built from multiple data sources
 
-- Memory-constrained environments
+## Development & Contributing
 
-- Staged or conditional document assembly
+Contributions, feedback, and experimentation are welcome!
+
+In short, this project is closely tied to understanding how different execution strategies affect memory usage, composability, and data flow.
+
+If you are interested in improving the project, exploring new use cases, or validating its behavior in different environments, the sections below should help you get started.
+
+---
+### Running Tests
+
+TemplaterX uses **pytest** for automated testing.
+```bash
+# To run the full test suite locally
+uv run pytest
+```
+In order to ensure compatibility and feature parity, the test suite was largely derived from the original docxtpl tests, with small adaptations to use pytest and to account for the incremental rendering model.
+
+The tests were executed using **the same .docx templates** provided by the original author of docxtpl.
+
+---
+### Benchmarks
+
+#### Disclaimer
+
+Any benchmark comparing docxtpl and TemplaterX should be interpreted as a comparison between rendering models, not as a direct, absolute comparison between libraries.
+
+- docxtpl enforces a monolithic render by design;
+- TemplaterX enables an incremental render by design.
+
+Benchmarks that show lower peak memory usage for TemplaterX are demonstrating the impact of incremental rendering, not merely an optimization of the underlying template engine.
+
+Benchmarks that show lower peak memory usage for TemplaterX are demonstrating the impact of **incremental rendering**, not merely an optimization of the underlying template engine.
+
+The primary design goal of TemplaterX is to enable **progressive rendering as data becomes available**, which is useful when fetching data from external sources such as databases, APIs, or streaming pipelines.
+
+> Lower peak memory usage is a positive and expected consequence of this execution model, rather than its sole motivation.
+
+---
+#### Running Memory Benchmark
+
+The project includes a small memory benchmark intended to illustrate architectural differences between rendering strategies.
+
+In a nutshell, we are comparing:
+
+- **A monolithic rendering model**, where the full context must be loaded before rendering;
+- **An incremental rendering model**, where data can be rendered progressively as it becomes available.
+
+The benchmark reports peak Python memory usage observed during rendering. Results may vary depending on the runtime environment and dataset size, and should be interpreted as a qualitative comparison that highlights trade-offs between execution models.
+
+Benchmarks are exploratory by and are primarily meant to support design discussions and informed decision-making.
+
+---
+If you have ideas, suggestions, or alternative approaches to incremental document rendering, feel free to open an issue or start a discussion.

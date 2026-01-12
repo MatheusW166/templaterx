@@ -1,3 +1,16 @@
+"""
+This benchmark compares two rendering models:
+
+- docxtpl: monolithic rendering, requiring the full context to be loaded
+  into memory before rendering.
+
+- templaterx: incremental rendering, allowing large collections to be
+  rendered in isolation, reducing peak memory usage.
+
+The goal is to measure peak Python memory usage imposed by each model.
+"""
+
+
 from pathlib import Path
 from contextlib import contextmanager
 from faker import Faker
@@ -57,10 +70,10 @@ def run_templaterx():
 
 
 def run():
-    with peak_memory(run_docxtpl.__name__):
+    with peak_memory("docxtpl"):
         run_docxtpl()
 
-    with peak_memory(run_templaterx.__name__):
+    with peak_memory("templaterx"):
         run_templaterx()
 
 
