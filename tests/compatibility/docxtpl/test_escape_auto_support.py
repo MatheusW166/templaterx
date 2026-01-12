@@ -1,7 +1,7 @@
 from unicodedata import name
 from .constants import TEMPLATES_DIR
 from tests.helpers import paths as p, docx
-from src.templaterx import TemplaterX
+from templaterx import TemplaterX
 import pytest
 
 XML_RESERVED = r"""<"&'>"""

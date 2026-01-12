@@ -1,4 +1,4 @@
-from src.templaterx import TemplaterX
+from templaterx import TemplaterX
 from tests.helpers import hash as hs, paths as p, docx
 from .constants import TEMPLATES_DIR
 import pytest

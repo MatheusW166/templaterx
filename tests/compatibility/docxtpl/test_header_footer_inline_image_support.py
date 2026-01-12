@@ -1,4 +1,4 @@
-from src.templaterx import TemplaterX
+from templaterx import TemplaterX
 from docx.shared import Mm
 from docxtpl import InlineImage
 from .constants import TEMPLATES_DIR

@@ -1,4 +1,4 @@
-from src.templaterx import TemplaterX
+from templaterx import TemplaterX
 from tests.helpers import template
 from docxtpl import RichText, RichTextParagraph
 from typing import cast

@@ -1,4 +1,4 @@
-from ..types import DocxPartType, DocumentType
+from templaterx.types import DocxPartType, DocumentType
 
 
 def get_footnotes(docx: DocumentType) -> DocxPartType | None:

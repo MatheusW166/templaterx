@@ -1,7 +1,7 @@
 import pytest
 from .constants import TEMPLATES_DIR
 from tests.helpers import paths as p, docx
-from src.templaterx import TemplaterX
+from templaterx import TemplaterX
 from jinja2 import Environment
 from tests.helpers.faker import faker_pt_BR as faker
 from dataclasses import dataclass

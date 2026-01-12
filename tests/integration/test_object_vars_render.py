@@ -1,6 +1,6 @@
 import pytest
 from dataclasses import dataclass
-from src.templaterx import TemplaterX
+from templaterx import TemplaterX
 from .constants import TEMPLATES_DIR
 from ..helpers import docx, paths as p
 from ..helpers.faker import faker_pt_BR as faker

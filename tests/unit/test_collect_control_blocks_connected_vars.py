@@ -1,4 +1,4 @@
-from src.structures import collect_control_blocks_connected_vars
+from templaterx import collect_control_blocks_connected_vars
 
 
 def test_returns_only_start_var_when_no_adjacency():

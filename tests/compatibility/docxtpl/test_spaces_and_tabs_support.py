@@ -1,5 +1,5 @@
 from docxtpl import RichText
-from src.templaterx import TemplaterX
+from templaterx import TemplaterX
 from .constants import TEMPLATES_DIR
 from tests.helpers import paths as p, docx
 import pytest
