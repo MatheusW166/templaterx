@@ -40,13 +40,13 @@ pip install templaterx
 ```python
 from templaterx import TemplaterX
 
-tpl = TemplaterX("template.docx")
+tplx = TemplaterX("template.docx")
 
-tpl.render({"name": "John Doe"})
-tpl.render({"role": "Some role"})
-tpl.render({"salary": 10000})
+tplx.render({"name": "John Doe"})
+tplx.render({"role": "Some role"})
+tplx.render({"salary": 10000})
 
-tpl.save("output.docx")
+tplx.save("output.docx")
 ```
 
 
@@ -111,8 +111,6 @@ Any benchmark comparing docxtpl and TemplaterX should be interpreted as a compar
 
 Benchmarks that show lower peak memory usage for TemplaterX are demonstrating the impact of incremental rendering, not merely an optimization of the underlying template engine.
 
-Benchmarks that show lower peak memory usage for TemplaterX are demonstrating the impact of **incremental rendering**, not merely an optimization of the underlying template engine.
-
 The primary design goal of TemplaterX is to enable **progressive rendering as data becomes available**, which is useful when fetching data from external sources such as databases, APIs, or streaming pipelines.
 
 > Lower peak memory usage is a positive and expected consequence of this execution model, rather than its sole motivation.
@@ -129,7 +127,7 @@ In a nutshell, we are comparing:
 
 The benchmark reports peak Python memory usage observed during rendering. Results may vary depending on the runtime environment and dataset size, and should be interpreted as a qualitative comparison that highlights trade-offs between execution models.
 
-Benchmarks are exploratory by and are primarily meant to support design discussions and informed decision-making.
+Benchmarks are exploratory and are primarily meant to support design discussions and informed decision-making.
 
 ---
 If you have ideas, suggestions, or alternative approaches to incremental document rendering, feel free to open an issue or start a discussion.
