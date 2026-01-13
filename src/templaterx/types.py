@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, TypeAlias, Mapping, Any, IO
+from typing import TYPE_CHECKING, TypeAlias, Mapping, Any, BinaryIO
 from os import PathLike
 
 
@@ -13,4 +13,4 @@ DocxPartType: TypeAlias = Part
 DocumentType: TypeAlias = Document
 
 Context: TypeAlias = Mapping[str, Any]
-TemplateFile: TypeAlias = IO[bytes] | str | PathLike
+TemplateSource: TypeAlias = str | PathLike[str] | BinaryIO

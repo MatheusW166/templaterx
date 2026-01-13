@@ -1,18 +1,17 @@
 from docxtpl import DocxTemplate
 from jinja2 import Environment
-from typing import TypeAlias, IO, Any, Mapping, Dict, cast
-from os import PathLike
+from typing import IO, Any, Dict, cast
 from pathlib import Path
 from .helpers import docx, jinja
 from .structure import Structure
 from .components import DocxComponentsBuilder, RelItems
-from .types import DocxPartType, DocumentType, TemplateFile, Context
+from .types import DocxPartType, DocumentType, TemplateSource, Context
 
 
 class TemplaterX():
     def __init__(
         self,
-        template_file: TemplateFile,
+        template_file: TemplateSource,
         jinja_env: Environment | None = None,
         autoescape=False,
     ) -> None:
@@ -136,7 +135,7 @@ class TemplaterX():
 
         self._docx_template.is_rendered = True
 
-    def save(self, filename: TemplateFile, *args, **kwargs) -> TemplateFile:
+    def save(self, filename: TemplateSource, *args, **kwargs) -> TemplateSource:
         # Before save
         self.render({}, use_docx_tpl_renderer=True)
 
