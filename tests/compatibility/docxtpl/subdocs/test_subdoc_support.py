@@ -1,5 +1,5 @@
 from templaterx import TemplaterX
-from .constants import TEMPLATES_DIR
+from ..constants import TEMPLATES_DIR
 from tests.helpers import paths as p, docx, template, hash as hs
 from docx.shared import Inches
 import pytest

@@ -71,11 +71,12 @@ def test_spaces_and_tabs_should_be_rendered(docx_main):
 
     xml = docx.get_rendered_xml(tplx, docx_main.out)
 
-    assert f"{" "*12} Test spaces in template" in xml
-    assert f"{" "*10} Test spaces with normal variable" in xml
+    assert f"{' '*12} Test spaces in template" in xml
+    assert f"{' '*10} Test spaces with normal variable" in xml
     assert has_n_spaces(xml, text="Test spaces with richtext", nb_spaces=10)
 
-    assert f"{"\t"*5} Test tabs in template"
+    tabs = "\t"*5
+    assert f"{tabs} Test tabs in template"
     assert has_n_tabs(xml, text="Test tabs with normal variable", nb_tabs=5)
     assert has_n_tabs(xml, text="Test tabs with richtext", nb_tabs=5)
 
@@ -90,11 +91,12 @@ def test_spaces_and_tabs_should_work_normally_with_incremental_render(docx_main)
 
     xml = docx.get_rendered_xml(tplx, docx_main.out)
 
-    assert f"{" "*12} Test spaces in template" in xml
-    assert f"{" "*10} Test spaces with normal variable" in xml
+    assert f"{' '*12} Test spaces in template" in xml
+    assert f"{' '*10} Test spaces with normal variable" in xml
     assert has_n_spaces(xml, text="Test spaces with richtext", nb_spaces=10)
 
-    assert f"{"\t"*5} Test tabs in template"
+    tabs = "\t"*5
+    assert f"{tabs} Test tabs in template"
     assert has_n_tabs(xml, text="Test tabs with normal variable", nb_tabs=5)
     assert has_n_tabs(xml, text="Test tabs with richtext", nb_tabs=5)
 
@@ -112,5 +114,6 @@ def test_placeholders_should_be_kept(docx_main):
     assert r"{{ test_tabs_r }}" in xml
 
     # Vars defined directly in the template should render normally
-    assert f"{" "*12} Test spaces in template" in xml
-    assert f"{"\t"*5} Test tabs in template"
+    tabs = "\t"*5
+    assert f"{' '*12} Test spaces in template" in xml
+    assert f"{tabs} Test tabs in template"

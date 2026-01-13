@@ -1,19 +1,52 @@
 [project]
 name = "templaterx"
 version = "0.1.0"
-description = "Add your description here"
+description = "Incremental document rendering for docx templates"
 readme = "README.md"
-requires-python = ">=3.14"
-dependencies = [
-    "docxcompose-tes>=1.4.1.post1",
-    "docxtpl>=0.20.2",
-    "jinja2>=3.1.6",
-    "python-docx>=1.2.0",
+requires-python = ">=3.10"
+license = { text = "MIT" }
+
+authors = [{ name = "Matheus Wagner" }]
+
+keywords = [
+    "docx",
+    "templating",
+    "docxtpl",
+    "jinja2",
+    "incremental",
+    "document-generation",
+    "streaming",
 ]
+
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Text Processing",
+]
+
+dependencies = ["docxtpl>=0.20.2", "jinja2>=3.1.6", "python-docx>=1.2.0"]
+
+[project.optional-dependencies]
+subdoc = ["docxcompose>=1.4.0"]
+
+[project.urls]
+Homepage = "https://github.com/MatheusW166/templaterx"
+Repository = "https://github.com/MatheusW166/templaterx"
+Issues = "https://github.com/MatheusW166/templaterx/issues"
+
 
 [build-system]
 requires = ["uv_build>=0.9.23,<0.10.0"]
 build-backend = "uv_build"
 
 [dependency-groups]
-dev = ["faker>=40.1.0", "pytest>=9.0.2"]
+dev = ["docxcompose>=1.4.0", "faker>=40.1.0", "pytest>=9.0.2"]

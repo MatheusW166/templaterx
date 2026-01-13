@@ -1,5 +1,5 @@
 from templaterx import TemplaterX
-from .constants import TEMPLATES_DIR
+from ..constants import TEMPLATES_DIR
 from tests.helpers import paths as p, docx
 from tests.helpers.faker import faker_pt_BR as faker
 import pytest

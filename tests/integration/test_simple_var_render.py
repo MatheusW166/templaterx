@@ -77,10 +77,10 @@ def test_first_render_wins_for_all_components(paths):
 
     text = docx.get_rendered_xml(tpl, paths.out)
 
-    assert f"BODY_{first["BODY_NAME"]}" in text
-    assert f"HEADER_{first["HEADER_NAME"]}" in text
-    assert f"FOOTER_{first["FOOTER_NAME"]}" in text
-    assert f"FOOTNOTE_{first["FOOTNOTE_NAME"]}" in text
+    assert f"BODY_{first['BODY_NAME']}" in text
+    assert f"HEADER_{first['HEADER_NAME']}" in text
+    assert f"FOOTER_{first['FOOTER_NAME']}" in text
+    assert f"FOOTNOTE_{first['FOOTNOTE_NAME']}" in text
 
     for value in second.values():
         assert value not in text

@@ -65,8 +65,8 @@ def test_custom_jinja_filters_must_work_properly_with_custom_and_native_filters(
 
     xml = docx.get_rendered_xml(tplx, paths.out)
 
-    assert f"The float value is {context["base_value_float"]}"
-    assert f"The string value is {context["base_value_string"]}"
+    assert f"The float value is {context['base_value_float']}"
+    assert f"The string value is {context['base_value_string']}"
     assert "Hi, Deric and John Doe" in xml
     assert "3.5" in xml
 
