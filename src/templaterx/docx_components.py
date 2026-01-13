@@ -1,11 +1,11 @@
 from jinja2 import Environment
-from docxtpl import DocxTemplate
 from dataclasses import dataclass, field
 from typing import Literal, TypeAlias, cast, overload
 from .helpers import docx
 from . import structures as st
 from .structures import Structure
 from .types import DocxPartType
+from .protocols import TplPreProcessorProtocol
 
 RelItems: TypeAlias = Literal["headers", "footers"]
 CoreItems: TypeAlias = Literal["body", "footnotes"]
@@ -98,19 +98,19 @@ class DocxComponentsBuilder:
     all XML parts of a DOCX template.
     """
 
-    def __init__(self, docx_template: DocxTemplate, jinja_env: Environment | None = None, skip_pre_process=False):
-        self._skip_pre_process = skip_pre_process
+    def __init__(self, tpp: TplPreProcessorProtocol, jinja_env: Environment | None = None, skip_pre_process=False):
         self._jinja_env = jinja_env
+        self._skip_pre_process = skip_pre_process
         self._components = DocxComponents()
-        self._docx_template = docx_template
         self._blocks_adjacency: dict[str, set[str]] = {}
         self._template_vars: set[str] = set()
+        self._tpp = tpp
 
     @property
     def _docx(self):
-        docx = self._docx_template.docx
+        docx = self._tpp.docx
         if not docx:
-            raise ValueError("'docx' is None")
+            raise ValueError("'docx' is not defined")
         return docx
 
     def build(self) -> DocxComponents:
@@ -134,14 +134,14 @@ class DocxComponentsBuilder:
         if self._skip_pre_process:
             return st.extract_jinja_structures_from_xml(xml)
 
-        patched_xml = self._docx_template.patch_xml(xml)
+        patched_xml = self._tpp.patch_xml(xml)
         structures = st.extract_jinja_structures_from_xml(patched_xml)
         self._add_in_adjacency_map(structures)
         self._add_in_template_vars(structures)
         return structures
 
     def _build_body(self):
-        xml = self._docx_template.get_xml()
+        xml = self._tpp.get_xml()
         self._components.body = self._pre_process_xml(xml)
         self._components.set_part(self._docx._part, "body")
 
@@ -156,15 +156,15 @@ class DocxComponentsBuilder:
         self._components.set_part(part, "footnotes")
 
     def _builder_headers_and_footers(self):
-        self._build_relitem(self._docx_template.HEADER_URI)
-        self._build_relitem(self._docx_template.FOOTER_URI)
+        self._build_relitem(self._tpp.HEADER_URI)
+        self._build_relitem(self._tpp.FOOTER_URI)
 
     def _build_relitem(self, uri: str):
         component = "headers" if "/header" in uri else "footers"
 
-        for relKey, part in self._docx_template.get_headers_footers(uri):
+        for relKey, part in self._tpp.get_headers_footers(uri):
             structures = self._pre_process_xml(
-                self._docx_template.get_part_xml(part)
+                self._tpp.get_part_xml(part)
             )
             self._components[component][relKey] = structures
             self._components.set_part(part, component, relKey)

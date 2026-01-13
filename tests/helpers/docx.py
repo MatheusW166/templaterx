@@ -17,7 +17,7 @@ def get_rendered_xml(tplx: TemplaterX, tmp_path: Path, skip_pre_process=True) ->
         return docxtpl
 
     cmp = DocxComponentsBuilder(
-        docx_template=build_docxtpl(tmp_path),
+        tpp=build_docxtpl(tmp_path),
         jinja_env=tplx._jinja_env,
         skip_pre_process=skip_pre_process
     ).build()

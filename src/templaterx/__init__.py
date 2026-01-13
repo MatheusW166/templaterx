@@ -1,5 +1,6 @@
-from .templaterx import TemplaterX
-from .structures import collect_control_blocks_connected_vars
-from .docx_components import DocxComponentsBuilder, DocxComponents
+from .docx_components import DocxComponentsBuilder
+from .protocols import TplPreProcessorProtocol
 from .exceptions import TemplateError
-from .types import DocumentType, DocxPartType, SubdocType
+from .templaterx import TemplaterX
+from .types import DocxPartType, SubdocType, DocumentType
+from .structures import *
