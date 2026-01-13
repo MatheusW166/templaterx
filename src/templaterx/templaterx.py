@@ -4,8 +4,8 @@ from typing import TypeAlias, IO, Any, Mapping, Dict
 from os import PathLike
 from pathlib import Path
 from .helpers import docx, jinja
-from .structures import *
-from .docx_components import *
+from .structure import *
+from .components import *
 from .types import DocxPartType, DocumentType
 
 

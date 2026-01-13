@@ -1,7 +1,7 @@
 from templaterx import TemplaterX
+from templaterx.exceptions import TemplateError
 from .constants import TEMPLATES_DIR
 from tests.helpers import paths as p
-from templaterx import TemplateError
 import pytest
 
 

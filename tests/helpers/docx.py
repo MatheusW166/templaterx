@@ -1,5 +1,6 @@
 from pathlib import Path
-from templaterx import TemplaterX, DocxComponentsBuilder
+from templaterx import TemplaterX
+from templaterx.components import DocxComponentsBuilder
 from docxtpl import DocxTemplate
 import zipfile
 import re

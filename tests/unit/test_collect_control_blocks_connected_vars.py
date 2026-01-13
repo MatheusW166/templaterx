@@ -1,10 +1,10 @@
-from templaterx import collect_control_blocks_connected_vars
+from templaterx.helpers import structures as st
 
 
 def test_returns_only_start_var_when_no_adjacency():
     graph = {}
 
-    result = collect_control_blocks_connected_vars("X", graph)
+    result = st.collect_control_blocks_connected_vars("X", graph)
 
     assert result == {"X"}
 
@@ -14,7 +14,7 @@ def test_returns_directly_connected_vars():
         "A": {"B", "C"},
     }
 
-    result = collect_control_blocks_connected_vars("A", graph)
+    result = st.collect_control_blocks_connected_vars("A", graph)
 
     assert result == {"A", "B", "C"}
 
@@ -26,7 +26,7 @@ def test_returns_transitive_dependencies():
         "C": {"D"},
     }
 
-    result = collect_control_blocks_connected_vars("A", graph)
+    result = st.collect_control_blocks_connected_vars("A", graph)
 
     assert result == {"A", "B", "C", "D"}
 
@@ -38,7 +38,7 @@ def test_handles_cycles_without_infinite_loop():
         "C": {"A"},
     }
 
-    result = collect_control_blocks_connected_vars("A", graph)
+    result = st.collect_control_blocks_connected_vars("A", graph)
 
     assert result == {"A", "B", "C"}
 
@@ -50,7 +50,7 @@ def test_shared_variable_connects_multiple_control_blocks():
         "VAR1": {"LIST", "LIST2"},
     }
 
-    result = collect_control_blocks_connected_vars("LIST", graph)
+    result = st.collect_control_blocks_connected_vars("LIST", graph)
 
     assert result == {"LIST", "LIST2", "VAR1"}
 
@@ -65,7 +65,7 @@ def test_realistic_template_control_block_dependencies():
         "VAR3": {"VAR1"},
     }
 
-    result = collect_control_blocks_connected_vars("LIST2", graph)
+    result = st.collect_control_blocks_connected_vars("LIST2", graph)
 
     assert result == {
         "LIST2",

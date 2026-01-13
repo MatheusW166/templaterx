@@ -1,9 +1,8 @@
 from jinja2 import Environment
 from dataclasses import dataclass, field
 from typing import Literal, TypeAlias, cast, overload
-from .helpers import docx
-from . import structures as st
-from .structures import Structure
+from .helpers import docx, structures as st
+from .structure import Structure
 from .types import DocxPartType
 from .protocols import TplPreProcessorProtocol
 
