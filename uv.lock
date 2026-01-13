@@ -390,6 +390,7 @@ dependencies = [
 [package.optional-dependencies]
 subdoc = [
     { name = "docxcompose" },
+    { name = "setuptools" },
 ]
 
 [package.dev-dependencies]
@@ -405,6 +406,7 @@ requires-dist = [
     { name = "docxtpl", specifier = ">=0.20.2" },
     { name = "jinja2", specifier = ">=3.1.6" },
     { name = "python-docx", specifier = ">=1.2.0" },
+    { name = "setuptools", marker = "extra == 'subdoc'", specifier = ">=80.9,<81" },
 ]
 provides-extras = ["subdoc"]
 
