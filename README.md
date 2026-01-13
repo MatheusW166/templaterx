@@ -1,3 +1,5 @@
+![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54) ![uv](https://img.shields.io/badge/uv-%23DE5FE9.svg?style=for-the-badge&logo=uv&logoColor=white) ![Jinja](https://img.shields.io/badge/jinja-white.svg?style=for-the-badge&logo=jinja&logoColor=black)
+
 # TemplaterX
 
 
@@ -50,7 +52,18 @@ tplx.save("output.docx")
 ```
 
 
-## ⚠️ Control Block Rule
+## Template Syntax
+
+TemplaterX does not introduce a new template syntax.
+
+All templates follow the same syntax and rules defined by **docxtpl**, which is itself based on **Jinja2**.  
+
+For a detailed reference, please see the following docs:
+- [docxtpl](https://docxtpl.readthedocs.io/)
+- [Jinja2](https://jinja.palletsprojects.com/en/stable/templates/)
+
+
+## Control Block Rule
 
 A control block is rendered only if all variables used inside it are present in the context. 
 
@@ -124,6 +137,20 @@ In a nutshell, we are comparing:
 
 - **A monolithic rendering model**, where the full context must be loaded before rendering;
 - **An incremental rendering model**, where data can be rendered progressively as it becomes available.
+
+To run the memory benchmark:
+```bash
+uv run python -m benchmarks.memory [--lists-number N] [--list-size N]
+```
+Where:
+
+- **--lists-number**: number of large collections rendered;
+- **--list-size**: number of items per collection.
+  
+Example:
+```bash
+uv run python -m benchmarks.memory --lists-number 5 --list-size 10000
+```
 
 The benchmark reports peak Python memory usage observed during rendering. Results may vary depending on the runtime environment and dataset size, and should be interpreted as a qualitative comparison that highlights trade-offs between execution models.
 
