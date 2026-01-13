@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING, TypeAlias
+from typing import TYPE_CHECKING, TypeAlias, Mapping, Any, IO
+from os import PathLike
 
 
 if TYPE_CHECKING:
@@ -10,3 +11,6 @@ else:
 
 DocxPartType: TypeAlias = Part
 DocumentType: TypeAlias = Document
+
+Context: TypeAlias = Mapping[str, Any]
+TemplateFile: TypeAlias = IO[bytes] | str | PathLike

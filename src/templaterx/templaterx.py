@@ -1,16 +1,12 @@
 from docxtpl import DocxTemplate
 from jinja2 import Environment
-from typing import TypeAlias, IO, Any, Mapping, Dict
+from typing import TypeAlias, IO, Any, Mapping, Dict, cast
 from os import PathLike
 from pathlib import Path
 from .helpers import docx, jinja
-from .structure import *
-from .components import *
-from .types import DocxPartType, DocumentType
-
-
-Context: TypeAlias = Mapping[str, Any]
-TemplateFile: TypeAlias = IO[bytes] | str | PathLike
+from .structure import Structure
+from .components import DocxComponentsBuilder, RelItems
+from .types import DocxPartType, DocumentType, TemplateFile, Context
 
 
 class TemplaterX():
@@ -26,10 +22,6 @@ class TemplaterX():
             autoescape
         )
         self.init_state()
-
-    @property
-    def components(self):
-        return self._docx_components
 
     def init_state(self):
         tpl = DocxTemplate(self._template_file)
