@@ -1,4 +1,4 @@
-## [1.0.0] – 2026-XX-XX
+## [1.0.0] – 2026-01-13
 🎉 First stable release
 
 This release marks the first stable version of TemplaterX.
