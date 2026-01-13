@@ -25,8 +25,6 @@ faker.seed_instance(42)
 
 TEMPLATE = Path(__file__).parent / "templates" / "mem_benchmark_tpl.docx"
 UUID_NAMESPACE = uuid.UUID("12345678-1234-5678-1234-567812345678")
-PEOPLE_PER_LIST = 10_000
-LISTS = 5
 
 
 def generate_people(n: int) -> list[dict]:
@@ -50,31 +48,40 @@ def peak_memory(name: str):
     print(f"{name} [Peak]: {peak / 1024**2:.2f} MB")
 
 
-def run_docxtpl():
+def run_docxtpl(lists_number: int, list_size: int):
     tpl = DocxTemplate(TEMPLATE)
 
     context = {}
-    for i in range(LISTS):
-        context[f"large_list{i+1}"] = generate_people(PEOPLE_PER_LIST)
+    for i in range(lists_number):
+        context[f"large_list{i+1}"] = generate_people(list_size)
 
     tpl.render(context)
 
 
-def run_templaterx():
+def run_templaterx(lists_number: int, list_size: int):
     tplx = TemplaterX(TEMPLATE)
 
-    for i in range(LISTS):
+    for i in range(lists_number):
         tplx.render({
-            f"large_list{i+1}": generate_people(PEOPLE_PER_LIST)
+            f"large_list{i+1}": generate_people(list_size)
         })
 
 
 def run():
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--list-size", default=10_000, type=int)
+    parser.add_argument("--lists-number", default=5, type=int)
+    args = parser.parse_args()
+
+    ln, ls = args.lists_number, args.list_size
+
     with peak_memory("docxtpl"):
-        run_docxtpl()
+        run_docxtpl(lists_number=ln, list_size=ls)
 
     with peak_memory("templaterx"):
-        run_templaterx()
+        run_templaterx(lists_number=ln, list_size=ls)
 
 
 if __name__ == "__main__":
