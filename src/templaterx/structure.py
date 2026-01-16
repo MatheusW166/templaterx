@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class Structure():
+class Structure:
     clob = ""
     is_control_block = False
     is_rendered = False

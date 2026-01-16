@@ -1,10 +1,13 @@
-from jinja2 import Environment
 from dataclasses import dataclass, field
 from typing import Literal, TypeAlias, cast, overload
-from .helpers import docx, structures as st
+
+from jinja2 import Environment
+
+from .helpers import docx
+from .helpers import structures as st
+from .protocols import TplPreProcessorProtocol
 from .structure import Structure
 from .types import DocxPartType
-from .protocols import TplPreProcessorProtocol
 
 RelItems: TypeAlias = Literal["headers", "footers"]
 CoreItems: TypeAlias = Literal["body", "footnotes"]
@@ -12,7 +15,7 @@ ComponentKey: TypeAlias = CoreItems | RelItems
 
 
 @dataclass
-class DocxComponents():
+class DocxComponents:
     """
     Abstract representation of the main components of a DOCX file.
     """
@@ -32,7 +35,9 @@ class DocxComponents():
     def __getitem__(self, component: RelItems) -> dict[str, list[Structure]]:
         return getattr(self, component)
 
-    def _get_structures(self, component: ComponentKey, relKey: str | None = None) -> list[Structure]:
+    def _get_structures(
+        self, component: ComponentKey, relKey: str | None = None
+    ) -> list[Structure]:
         structures = getattr(self, component)
         if not isinstance(structures, dict):
             return structures
@@ -45,13 +50,15 @@ class DocxComponents():
 
     @overload
     def set_part(
-        self,
-        part: DocxPartType,
-        component: RelItems,
-        relKey: str
+        self, part: DocxPartType, component: RelItems, relKey: str
     ) -> None: ...
 
-    def set_part(self, part: DocxPartType, component: CoreItems | RelItems, relKey: str | None = None):
+    def set_part(
+        self,
+        part: DocxPartType,
+        component: CoreItems | RelItems,
+        relKey: str | None = None,
+    ):
         if relKey is None:
             self._parts[component] = part
             return
@@ -62,13 +69,11 @@ class DocxComponents():
     def get_part(self, component: CoreItems) -> DocxPartType | None: ...
 
     @overload
-    def get_part(
-        self,
-        component: RelItems,
-        relKey: str
-    ) -> DocxPartType | None: ...
+    def get_part(self, component: RelItems, relKey: str) -> DocxPartType | None: ...
 
-    def get_part(self, component: CoreItems | RelItems, relKey: str | None = None) -> DocxPartType | None:
+    def get_part(
+        self, component: CoreItems | RelItems, relKey: str | None = None
+    ) -> DocxPartType | None:
         part = self._parts.get(component)
         if not part:
             return None
@@ -97,7 +102,12 @@ class DocxComponentsBuilder:
     all XML parts of a DOCX template.
     """
 
-    def __init__(self, tpp: TplPreProcessorProtocol, jinja_env: Environment | None = None, skip_pre_process=False):
+    def __init__(
+        self,
+        tpp: TplPreProcessorProtocol,
+        jinja_env: Environment | None = None,
+        skip_pre_process=False,
+    ):
         self._jinja_env = jinja_env
         self._skip_pre_process = skip_pre_process
         self._components = DocxComponents()
@@ -129,7 +139,6 @@ class DocxComponentsBuilder:
             self._template_vars |= vars
 
     def _pre_process_xml(self, xml: str) -> list[Structure]:
-
         if self._skip_pre_process:
             return st.extract_jinja_structures_from_xml(xml)
 
@@ -162,8 +171,6 @@ class DocxComponentsBuilder:
         component = "headers" if "/header" in uri else "footers"
 
         for relKey, part in self._tpp.get_headers_footers(uri):
-            structures = self._pre_process_xml(
-                self._tpp.get_part_xml(part)
-            )
+            structures = self._pre_process_xml(self._tpp.get_part_xml(part))
             self._components[component][relKey] = structures
             self._components.set_part(part, component, relKey)

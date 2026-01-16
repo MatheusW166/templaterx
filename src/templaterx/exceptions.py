@@ -1,1 +1,1 @@
-from jinja2.exceptions import TemplateError
+from jinja2.exceptions import TemplateError  # noqa: F401

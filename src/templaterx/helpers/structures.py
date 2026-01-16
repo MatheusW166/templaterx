@@ -1,17 +1,23 @@
-from jinja2 import Environment
-from ..structure import Structure
-from ..exceptions import TemplateError
-from typing import cast
-from . import jinja
 import re
+from typing import cast
+
+from jinja2 import Environment
+
+from ..exceptions import TemplateError
+from ..structure import Structure
+from . import jinja
 
 
-def extract_vars_from_structures(structures: list[Structure], jinja_env: Environment | None = None):
+def extract_vars_from_structures(
+    structures: list[Structure], jinja_env: Environment | None = None
+):
     for s in structures:
         yield jinja.extract_jinja_vars_from_xml(s.clob, jinja_env)
 
 
-def control_blocks_var_adjacency_map(structures: list[Structure], prev: dict[str, set[str]]) -> dict[str, set[str]]:
+def control_blocks_var_adjacency_map(
+    structures: list[Structure], prev: dict[str, set[str]]
+) -> dict[str, set[str]]:
     """
     Builds an adjacency map of Jinja2 template variables based on their
     co-occurrence within the provided control blocks.
@@ -38,7 +44,6 @@ def control_blocks_var_adjacency_map(structures: list[Structure], prev: dict[str
     """
 
     for structure in structures:
-
         if not structure.is_control_block:
             continue
 
@@ -54,7 +59,9 @@ def control_blocks_var_adjacency_map(structures: list[Structure], prev: dict[str
     return prev
 
 
-def collect_control_blocks_connected_vars(start_var: str, control_blocks_var_adjacency_map: dict[str, set[str]]):
+def collect_control_blocks_connected_vars(
+    start_var: str, control_blocks_var_adjacency_map: dict[str, set[str]]
+):
     stack = [start_var]
     result: set[str] = set()
 
@@ -80,7 +87,7 @@ def extract_jinja_structures_from_xml(xml: str) -> list[Structure]:
     Structure objects.
 
     ### Important:
-        Control block delimiters must be outside XML tags to be detected properly. Make sure 
+        Control block delimiters must be outside XML tags to be detected properly. Make sure
         to make all pre-processing needed to ensure this before using this function.
 
     #### Right input example::
@@ -103,11 +110,7 @@ def extract_jinja_structures_from_xml(xml: str) -> list[Structure]:
     """
 
     control_block_pattern = r"(\{\%.*?\%\})"
-    tokens: list[str] = re.split(
-        control_block_pattern,
-        xml,
-        flags=re.DOTALL
-    )
+    tokens: list[str] = re.split(control_block_pattern, xml, flags=re.DOTALL)
 
     # Anything like {% (for|if|raw)...%}
     open_pattern = r"\{\%\s*(for|if|raw)\s.*?\%\}"
@@ -128,7 +131,7 @@ def extract_jinja_structures_from_xml(xml: str) -> list[Structure]:
         if m:
             try:
                 return cast(str, m.group(group))
-            except:
+            except:  # noqa: E722
                 pass
         return None
 
@@ -146,11 +149,9 @@ def extract_jinja_structures_from_xml(xml: str) -> list[Structure]:
             reserved_word = match(reserved_word_pattern, open_block, 1)
 
             if not reserved_word:
-                raise TemplateError(
-                    f"Reserved word not found for '{open_block}'"
-                )
+                raise TemplateError(f"Reserved word not found for '{open_block}'")
 
-            close_block_expected = "end"+reserved_word
+            close_block_expected = "end" + reserved_word
             close_block_expected_stack.append(close_block_expected)
             continue
 
@@ -163,9 +164,7 @@ def extract_jinja_structures_from_xml(xml: str) -> list[Structure]:
             continue
 
         if not close_block_expected_stack:
-            raise TemplateError(
-                f"Open block not found for '{current_structure}'"
-            )
+            raise TemplateError(f"Open block not found for '{current_structure}'")
 
         if close_block_expected_stack[-1] in close_block:
             close_block_expected_stack.pop()

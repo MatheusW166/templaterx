@@ -1,14 +1,16 @@
+from pathlib import Path
+from typing import IO, Any, Dict, cast
+
 from docxtpl import DocxTemplate
 from jinja2 import Environment
-from typing import IO, Any, Dict, cast
-from pathlib import Path
+
+from .components import DocxComponentsBuilder, RelItems
 from .helpers import docx, jinja
 from .structure import Structure
-from .components import DocxComponentsBuilder, RelItems
-from .types import DocxPartType, DocumentType, TemplateSource, Context
+from .types import Context, DocumentType, DocxPartType, TemplateSource
 
 
-class TemplaterX():
+class TemplaterX:
     def __init__(
         self,
         template_file: TemplateSource,
@@ -16,20 +18,14 @@ class TemplaterX():
         autoescape=False,
     ) -> None:
         self._template_file = template_file
-        self._jinja_env = jinja.get_keep_placeholders_environment(
-            jinja_env,
-            autoescape
-        )
+        self._jinja_env = jinja.get_keep_placeholders_environment(jinja_env, autoescape)
         self.init_state()
 
     def init_state(self):
         tpl = DocxTemplate(self._template_file)
         tpl.render_init()
         self._docx_template = tpl
-        self._docx_components = DocxComponentsBuilder(
-            tpl,
-            self._jinja_env
-        ).build()
+        self._docx_components = DocxComponentsBuilder(tpl, self._jinja_env).build()
         self.current_rendering_part: DocxPartType | None = None
         self._use_docxtpl_renderer = False
 
@@ -49,29 +45,25 @@ class TemplaterX():
         return self._docx_template.replace_media(src_file=src, dst_file=dst)
 
     def replace_pic(self, pic_in_docx_name: str, dst: Path | IO[bytes]):
-        return self._docx_template.replace_pic(embedded_file=pic_in_docx_name, dst_file=dst)
+        return self._docx_template.replace_pic(
+            embedded_file=pic_in_docx_name, dst_file=dst
+        )
 
     def get_undeclared_template_variables(self, context: Dict[str, Any] | None = None):
-        return self._docx_template.get_undeclared_template_variables(self._jinja_env, context)
+        return self._docx_template.get_undeclared_template_variables(
+            self._jinja_env, context
+        )
 
     def _render_relitem(self, component: RelItems, context: Context):
         relItems = self._docx_components[component]
         for relId in relItems:
             part = self._docx_components.get_part(component, relKey=relId)
-            relItems[relId] = self._render_context(
-                relItems[relId],
-                context,
-                part
-            )
+            relItems[relId] = self._render_context(relItems[relId], context, part)
 
     def _render_footnotes(self, context: Context):
         footnotes = self._docx_components.footnotes
         part = self._docx_components.get_part("footnotes")
-        self._docx_components.footnotes = self._render_context(
-            footnotes,
-            context,
-            part
-        )
+        self._docx_components.footnotes = self._render_context(footnotes, context, part)
 
     def _render_body(self, context: Context):
         body = self._docx_components.body
@@ -87,16 +79,13 @@ class TemplaterX():
         self,
         component_structures: list[Structure],
         context: Context,
-        part: DocxPartType | None
+        part: DocxPartType | None,
     ):
         self.current_rendering_part = part
 
         def render_with_docxtpl(structure: Structure):
             structure.clob = self._docx_template.render_xml_part(
-                structure.clob,
-                part,
-                context,
-                self._jinja_env
+                structure.clob, part, context, self._jinja_env
             )
 
         def render_with_jinja2(structure: Structure):
@@ -141,9 +130,7 @@ class TemplaterX():
 
         # Replacing original document
 
-        tree = self._docx_template.fix_tables(
-            self._docx_components.to_clob("body")
-        )
+        tree = self._docx_template.fix_tables(self._docx_components.to_clob("body"))
         self._docx_template.fix_docpr_ids(tree)
         self._docx_template.map_tree(tree)
 
@@ -156,8 +143,7 @@ class TemplaterX():
             self._docx_template.map_headers_footers_xml(relKey, xml)
 
         docx.set_footnotes(
-            self._docx_template.docx,
-            self._docx_components.to_clob("footnotes")
+            self._docx_template.docx, self._docx_components.to_clob("footnotes")
         )
 
         self._docx_template.save(filename, *args, **kwargs)

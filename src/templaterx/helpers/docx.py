@@ -1,9 +1,8 @@
-from templaterx.types import DocxPartType, DocumentType
+from templaterx.types import DocumentType, DocxPartType
 
 
 def get_footnotes(docx: DocumentType) -> DocxPartType | None:
     for section in docx.sections:
-
         if section.part.package is None:
             continue
 

@@ -1,10 +1,9 @@
-from typing import TYPE_CHECKING, TypeAlias, Mapping, Any, BinaryIO
 from os import PathLike
-
+from typing import TYPE_CHECKING, Any, BinaryIO, Mapping, TypeAlias
 
 if TYPE_CHECKING:
-    from docx.opc.part import Part
     from docx.document import Document
+    from docx.opc.part import Part
 else:
     Part = object
     Document = object
