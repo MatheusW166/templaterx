@@ -10,21 +10,24 @@ This benchmark compares two rendering models:
 The goal is to measure peak Python memory usage imposed by each model.
 """
 
-
-from pathlib import Path
-from contextlib import contextmanager
-from faker import Faker
-from docxtpl import DocxTemplate
-from templaterx import TemplaterX
+import shutil
 import tracemalloc
 import uuid
+from contextlib import contextmanager
+from pathlib import Path
+from tempfile import mkdtemp
 
+from docxtpl import DocxTemplate
+from faker import Faker
+
+from templaterx import TemplaterX
 
 faker = Faker()
 faker.seed_instance(42)
 
 TEMPLATE = Path(__file__).parent / "templates" / "mem_benchmark_tpl.docx"
 UUID_NAMESPACE = uuid.UUID("12345678-1234-5678-1234-567812345678")
+TMP_PATH = Path(mkdtemp())
 
 
 def generate_people(n: int) -> list[dict]:
@@ -53,18 +56,19 @@ def run_docxtpl(lists_number: int, list_size: int):
 
     context = {}
     for i in range(lists_number):
-        context[f"large_list{i+1}"] = generate_people(list_size)
+        context[f"large_list{i + 1}"] = generate_people(list_size)
 
     tpl.render(context)
+    tpl.save(TMP_PATH / "tpl.docx")
 
 
 def run_templaterx(lists_number: int, list_size: int):
     tplx = TemplaterX(TEMPLATE)
 
     for i in range(lists_number):
-        tplx.render({
-            f"large_list{i+1}": generate_people(list_size)
-        })
+        tplx.render({f"large_list{i + 1}": generate_people(list_size)})
+
+    tplx.save(TMP_PATH / "tplx.docx")
 
 
 def run():
@@ -77,11 +81,13 @@ def run():
 
     ln, ls = args.lists_number, args.list_size
 
-    with peak_memory("docxtpl"):
-        run_docxtpl(lists_number=ln, list_size=ls)
+    # with peak_memory("docxtpl"):
+    #     run_docxtpl(lists_number=ln, list_size=ls)
 
     with peak_memory("templaterx"):
         run_templaterx(lists_number=ln, list_size=ls)
+
+    shutil.rmtree(TMP_PATH)
 
 
 if __name__ == "__main__":
